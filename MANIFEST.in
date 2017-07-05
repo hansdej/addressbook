@@ -1,0 +1,31 @@
+# See for more information: https://docs.python.org/2/distutils/sourcedist.html
+
+# Instructions:
+#
+# 0. Replace the placeholder @@project@@ with the project's name
+#
+# 1. Edit the file to reflect your requirements
+#
+# 2. run::
+#
+#      python setup.py sdist
+#
+#    This should create a distributable archive in the dist/ directory.
+
+global-exclude *.pyc *.swp *.pyo
+#  prune src/addressbook/__pycache__
+recursive-exclude * __pycache__
+
+recursive-include docs *.rst conf.py Makefile make.bat
+
+recursive-include src/ *.txt *.py
+recursive-include tests/ *.py
+recursive-include docs/ *.py
+
+include pytest.ini
+include README.rst
+include requirements.txt
+include setup.cfg
+include setup.py
+include tox.ini
+
