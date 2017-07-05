@@ -181,7 +181,7 @@ class Addressbook(object):
             Clist.pop(target[0])
 
     def full_print(self):
-        list = "Adressbook \"%s\""%self.name
+        list = "%s\n"%self
         for contact in self._contacts: 
             list += contact.full_print()
         return list    
@@ -236,24 +236,33 @@ class Addressbook(object):
 
         # Start reading the Config files:    
         config = {}
-        config_summary =    "Config parameters ar loaded as:"
-        config_summary +=   "<Config>"
         for section in c_parser.sections():
             # Stuff is already structured in sections:    
             config[section] = {}
-            config_summary += "Section [%s]:"%section
             for option in c_parser.options(section): 
                 value = c_parser.get(section, option)
                 config[section][option]=value
-                config_summary += "\t[%s] = [%s]"%(option,value)
-        config_summary +="</Config>"        
-
-        logging.debug(config_summary)        
 
         self.configuration = config        
 
-        
+        logging.debug(self.print_config())
         return self.configuration
+
+    def print_config(self):
+        config_summary =    "Config parameters ar loaded as:\n"
+        config_summary +=   "<Config>\n"
+        config=self.configuration
+
+        for section in config:
+            config_summary += "[%s]:\n"%section
+
+            for option in config[section]:
+                value = config[section][option]
+                config_summary += "\t%s = %s\n"%(option,value)
+
+        config_summary +=   "</Config>\n"
+        return config_summary
+
         
 
 
@@ -321,7 +330,7 @@ class Contact(object):
     def full_print(self):
         text = '<Contact: \"%s, %s\">\n'%(
                     self.sname, self.fname)
-        for attribute in self.get_attrs():
+        for attribute in sorted(self.get_attrs()):
             text += '\t%s = %s\n'%(attribute,getattr(self, attribute))
         return text
 
@@ -371,7 +380,7 @@ class Contact(object):
         if attr_name in self._allowed_attributes:
             setattr(self,attr_name, attr_val)
         else:
-            logging.debug("'%s' is not an allowed attribute."%attr_name)
+            logging.warning("'%s' is not an allowed attribute."%attr_name)
 
     @classmethod
     def add_allowed_attr(cls,attr_name,attr_description):
@@ -428,8 +437,9 @@ def main (args):
     log.addHandler(console)
 
 
-    print("Loading testmod")
+    logging.info("Loading testmod")
     # Ik vermoed dat doctest de logging messages niet doorkrijgt
+    doctest.report =True
     doctest.testmod()
 
     return 0
