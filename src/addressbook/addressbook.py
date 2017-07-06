@@ -31,12 +31,12 @@ class Addressbook(object):
     """
     default_name = "Myn Addressbook"
     config_read = False
-    def __init__(self, name=None): 
+    def __init__(self, name=None):
         """
         Initialize the addressbook object:
 
         >>> import addressbook                                                                                                  
-        >>> ab = addressbook.Addressbook("My Addressbook")                                                                      
+        >>> ab = addressbook.Addressbook("My Addressbook")
         >>> ab
         <class Addressbook "My Addressbook", containing 0 contacts>
         >>> 
@@ -276,7 +276,7 @@ class Addressbook(object):
             No [Contacts attributes] section with allowed attributes was found in
             one of the used ini-files.
             """)
-        try:        
+        try:
             Addressbook.default_name=config["Addressbook"]["default_name"]
         except:
             logging.debug("""
