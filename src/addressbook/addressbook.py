@@ -29,16 +29,24 @@ class Addressbook(object):
     """
     An address object.
     """
-    def __init__(self, name="My Addressbook"): 
+    default_name = "Myn Addressbook"
+    config_read = False
+    def __init__(self, name=None): 
         """
         Initialize the addressbook object:
 
         >>> import addressbook                                                                                                  
-        >>> ab = addressbook.Addressbook("my Addressbook")                                                                      
+        >>> ab = addressbook.Addressbook("My Addressbook")                                                                      
         >>> ab
-        <class Addressbook "my Addressbook", containing 0 contacts>
+        <class Addressbook "My Addressbook", containing 0 contacts>
         >>> 
         """
+        if Addressbook.config_read is False:
+            self.read_config()
+            self.set_config()
+        if name is None:
+            name = Addressbook.default_name
+
         self.name       = name
         self._contacts  = []
         self._newId     = 0 # Use the underscore to prevent it be copied in a copy.
@@ -97,11 +105,11 @@ class Addressbook(object):
         The base method to add a contact to an addressbook:
 
         >>> import addressbook
-        >>> ab = addressbook.Addressbook("my Addressbook")                                                                      
+        >>> ab = addressbook.Addressbook("My Addressbook")                                                                      
         >>> ab.add_contact(addressbook.Contact('John', 'Doe'))                                                                                                                                                     
         >>> ab.add_contact(addressbook.Contact('Jane', 'Doe'))                                                                                                                                                     
         >>> ab
-        <class Addressbook "my Addressbook", containing 2 contacts>
+        <class Addressbook "My Addressbook", containing 2 contacts>
 
         """
         thisId      = self._newId
@@ -126,7 +134,7 @@ class Addressbook(object):
         Is is absent.
 
         >>> import addressbook
-        >>> ab = addressbook.Addressbook()
+        >>> ab = addressbook.Addressbook("My Addressbook")
         >>> ab += addressbook.Contact("John", "Doe")
         >>> ab += addressbook.Contact("Jane", "Doe")
         >>> ab
@@ -196,10 +204,11 @@ class Addressbook(object):
         """
         standard_files = []
         # Expand and define the standard config files:
+
         for stdconfigfile in [ 
-                os.path.expandvars( "$MODULE_DIR/addressbook.conf"),
+                "%s/addressbook.ini"%os.path.dirname(__file__) ,
                 os.path.expanduser("~/.addressbook")
-                ]: 
+                ]:
 
             if os.path.isfile(stdconfigfile):
                 standard_files.append(stdconfigfile)
@@ -247,6 +256,32 @@ class Addressbook(object):
 
         logging.debug(self.print_config())
         return self.configuration
+
+    def set_config(self, config=None):
+        """
+        """
+        if config is None:
+            config = self.configuration
+
+        allowed_attributes = "Contact attributes"
+        
+        try:
+            for attr in config[allowed_attributes]:
+                # Now for some magick: call the class method:
+                description = config[allowed_attributes][attr]
+                Contact.add_allowed_attr(attr,description)
+        
+        except:
+            logging.warning("""
+            No [Contacts attributes] section with allowed attributes was found in
+            one of the used ini-files.
+            """)
+        try:        
+            Addressbook.default_name=config["Addressbook"]["default_name"]
+        except:
+            logging.debug("""
+            Addressbook default name was not changed in any config file.
+            """)
 
     def print_config(self):
         config_summary =    "Config parameters ar loaded as:\n"
