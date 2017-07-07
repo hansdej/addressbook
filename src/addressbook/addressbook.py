@@ -272,7 +272,7 @@ class Addressbook(object):
                 description = config[allowed_attributes][attr]
                 Contact.add_allowed_attr(attr,description)
         
-        except:
+        except KeyError:
             logging.warning("""
             No [Contacts attributes] section with allowed attributes was found in
             one of the used ini-files.
@@ -280,7 +280,7 @@ class Addressbook(object):
 
         try:
             Addressbook.default_name=config["Addressbook"]["default_name"]
-        except:
+        except KeyError:
             logging.debug("""
             Addressbook default name was not changed in any config file.
             """)
