@@ -30,10 +30,6 @@ if jsonout == csvfile:
     # prevent overwriting of csv
     jsonout = "adresboek.json"
 
-ab = ab+ab
-
-print(ab)
-
 msg = ""
 for contact in ab:
     for attribute in contact.get_attrs():

@@ -9,7 +9,7 @@ class TestContact(unittest.TestCase):
 
     def test_new_addressbook_creation(self):
         ab = Addressbook("My testaddressbooek")
-        assert isinstance(ab, Addressbook)
+        self.assertIsInstance(ab, Addressbook)
 
     def test_fail_addresbook_with_too_many_args(self):
         with self.assertRaises(TypeError):
@@ -21,7 +21,7 @@ class TestContact(unittest.TestCase):
 
     def test_new_contact(self):
         c = Contact('John','Doe')
-        assert isinstance(c,Contact)
+        self.assertIsInstance(c,Contact)
 
     def test_new_contact_again(self):
         c = Contact('John','Doe')
