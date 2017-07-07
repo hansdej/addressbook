@@ -200,7 +200,7 @@ class Addressbook(object):
         """
         Read the parsed and standard configuration files
         if not None, the config file names should be a proper list:
-     
+
         configfiles = [filenames]
         """
         standard_files = []
