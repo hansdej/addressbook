@@ -229,7 +229,7 @@ class Addressbook(object):
 
         # initialise the config parser:
         c_parser = configparser.ConfigParser()
-        
+
         message = "Try to read the configfile(s):"
         for filename in configfiles:
                 message += " %s\n"%filename
@@ -266,13 +266,13 @@ class Addressbook(object):
             config = self.configuration
 
         allowed_attributes = "Contact attributes"
-        
+
         try:
             for attr in config[allowed_attributes]:
                 # Now for some magick: call the class method:
                 description = config[allowed_attributes][attr]
                 Contact.add_allowed_attr(attr,description)
-        
+
         except KeyError:
             logging.warning("""
             No [Contacts attributes] section with allowed attributes was found in
@@ -301,9 +301,6 @@ class Addressbook(object):
         config_summary +=   "</Config>\n"
         return config_summary
 
-        
-
-
     def import_csv(self,csvfilename):
 
         if os.path.exists(csvfilename):
@@ -317,13 +314,13 @@ class Addressbook(object):
                     newcontact = Contact(fname, sname)
                     newcontact.add_attr('email',email)
                     self.add_contact( newcontact)
-	
+
     def export_json(self):
         # create the proper list
         #jsondict = {"Addressbook"}
         pass
-        
-	
+
+
 class Contact(object):
     """
     A Contact object.
@@ -389,9 +386,9 @@ class Contact(object):
         the "other" object.
         """
         new = self.copy()
-                
-        for att in  other.get_attrs() | self.get_attrs() :
-            if hasattr(self,att) :
+
+        for att in other.get_attrs() | self.get_attrs():
+            if hasattr(self,att):
                 continue
             else:
                 new.add_attr(att,getattr(other,att))
