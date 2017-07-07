@@ -68,7 +68,7 @@ class Addressbook(object):
     def __len__(self):
         """ The number of contacts is a usefull length """
         return len(self._contacts)
-	
+
     def __repr__(self):
         return '<class Addressbook \"%s\", containing %d contacts>'%(
             self.name, len(self)
@@ -98,7 +98,7 @@ class Addressbook(object):
         for contact in self:
             newbook.add_contact(contact)
 
-        return newbook    
+        return newbook
 
     def add_contact(self, contact):
         """
@@ -193,7 +193,7 @@ class Addressbook(object):
         thisList = "%s\n"%self
         for contact in self._contacts:
             thisList += contact.full_print()
-        return thisList    
+        return thisList
 
 
     def read_config(self, configfiles=None):
@@ -222,7 +222,7 @@ class Addressbook(object):
         if configfiles is None:
             configfiles = standard_files
             
-        else: 
+        else:
             standard_files.extend(configfiles)
             configfiles = standard_files
 
@@ -433,7 +433,7 @@ class Contact(object):
         >>> c2.add_attr('bicycle', 'Gazelle')
         >>> sorted(c2.get_attrs())
         ['bicycle', 'fname', 'sname']
-        >>> 
+        >>>
         """
         if attr_name in cls._allowed_attributes:
             # Probably we found a better description.

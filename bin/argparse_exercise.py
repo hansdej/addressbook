@@ -17,12 +17,12 @@ parser.add_argument( '-n', '--name',
 parser.add_argument( '-f', '--firstname',
                 help='The first name of the new contact.',
                 default = None,
-                type= str 
+                type= str
                 )
 parser.add_argument( '-s', '--surname',
                 help='The family name of the new contact.',
                 default = None,
-                type= str 
+                type= str
                 )
 parser.add_argument( '-a', '--attr',
                 help='add extra attribute to the contact',
