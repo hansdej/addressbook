@@ -434,9 +434,6 @@ class Contact(object):
         >>> sorted(c2.get_attrs())
         ['bicycle', 'fname', 'sname']
         >>> 
-
-
-
         """
         if attr_name in cls._allowed_attributes:
             # Probably we found a better description.
@@ -447,9 +444,9 @@ class Contact(object):
 
 
     def get_attrs( self):
-	"""
+        """
         Obsoleted by the general function?
-	"""
+        """
         myattrs= set()
         for a in dir(self):
             if a.startswith('_'):
