@@ -30,10 +30,5 @@ if jsonout == csvfile:
     # prevent overwriting of csv
     jsonout = "adresboek.json"
 
-msg = ""
-for contact in ab:
-    for attribute in contact.get_attrs():
-        msg += "%s = %s \t "%(str(attribute),getattr(contact,attribute))
-    msg+= "\n"
+print(ab.full_print())
 
-print(msg)

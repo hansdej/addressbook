@@ -23,10 +23,6 @@ class TestContact(unittest.TestCase):
         c = Contact('John','Doe')
         self.assertIsInstance(c,Contact)
 
-    def test_new_contact_again(self):
-        c = Contact('John','Doe')
-        self.assertIsInstance(c,Contact)
-
     def test_faillure_on_wrong_arguments(self):
         with self.assertRaises(TypeError):
             Contact("one argument lacking")

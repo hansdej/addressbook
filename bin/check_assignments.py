@@ -157,13 +157,7 @@ if jsonout == csvfile:
 
 ab = ab+ab
 
-print(ab)
-
-msg = ""
-for contact in ab:
-    for attribute in contact.get_attrs():
-        msg += "%s = %s \t "%(str(attribute),getattr(contact,attribute))
-    msg+= "\n"
+print(ab.full_print())
 ab.del_contact("Jane", "Doe")
 ab.del_contact("Jane", "Doe",Id=4)
 print(ab.full_print())
