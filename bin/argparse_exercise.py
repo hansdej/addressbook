@@ -12,7 +12,7 @@ parser.add_argument( '-n', '--name',
                 help='The name of the new addressbook',
                 nargs=1,
                 default = None,
-                type= str 
+                type= str
                 )
 parser.add_argument( '-f', '--firstname',
                 help='The first name of the new contact.',
@@ -51,7 +51,7 @@ if "create_contact" in sys.argv[0]:
     # Script was called via the create_contact filename.
     # Create the Contact:
     c = addressbook.Contact(fname,sname)
-    c.add_attr(extra_attrs[0], extra_attrs[1])  
+    c.add_attr(extra_attrs[0], extra_attrs[1])
     # Display the contact:
     logging.debug(c)
     # Crudely display the attributes
@@ -76,6 +76,6 @@ elif "create_addrbook" in sys.argv[0]:
     if len(ab) == 0:
         logging.debug("<None>")
     else:
-        for c in ab: 
+        for c in ab:
             logging.debug(c)
 

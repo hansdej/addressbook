@@ -71,7 +71,7 @@ Configuration files:
 
 ab.read_config(configfiles=['addressbook.ini'])
 
-logging.info( ab.print_config()) 
+logging.info( ab.print_config())
 
 logging.debug(addressbook.attributes(ab))
 
@@ -163,11 +163,7 @@ msg = ""
 for contact in ab:
     for attribute in contact.get_attrs():
         msg += "%s = %s \t "%(str(attribute),getattr(contact,attribute))
-    msg+= "\n"    
+    msg+= "\n"
 ab.del_contact("Jane", "Doe")
 ab.del_contact("Jane", "Doe",Id=4)
 print(ab.full_print())
-
-
-
-

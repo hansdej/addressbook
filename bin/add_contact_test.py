@@ -38,6 +38,6 @@ msg = ""
 for contact in ab:
     for attribute in contact.get_attrs():
         msg += "%s = %s \t "%(str(attribute),getattr(contact,attribute))
-    msg+= "\n"    
+    msg+= "\n"
 
 print(msg)

@@ -19,4 +19,4 @@ if addressbook is None:
     ab = addressbook.Addressbook()
 else:
     ab = addressbook.Addressbook(addressbookName)
-    
+

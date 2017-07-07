@@ -23,7 +23,7 @@ def attributes(thing):
             continue
         else:
             myattrs.add(attr)
-    return myattrs            
+    return myattrs
 
 class Addressbook(object):
     """
@@ -39,7 +39,7 @@ class Addressbook(object):
         >>> ab = addressbook.Addressbook("My Addressbook")
         >>> ab
         <class Addressbook "My Addressbook", containing 0 contacts>
-        >>> 
+        >>>
         """
         if Addressbook.config_read is False:
             self.read_config()
@@ -55,7 +55,7 @@ class Addressbook(object):
         newbook = self.copy()
 
         if isinstance(added,Contact):
-            # Add one contact 
+            # Add one contact
             newbook.add_contact(added)
 
         elif isinstance(added,Addressbook):
@@ -63,8 +63,8 @@ class Addressbook(object):
             for contact in added:
                 newbook.add_contact(contact)
 
-        return newbook        
-		
+        return newbook
+
     def __len__(self):
         """ The number of contacts is a usefull length """
         return len(self._contacts)
@@ -87,8 +87,8 @@ class Addressbook(object):
 
         # Copy the properties of the original object:
         # Got a feeling this should be simpler by first calling
-        # the copy method from the superclass and then add the 
-        # explicit copy for the Contact()s that we added. 
+        # the copy method from the superclass and then add the
+        # explicit copy for the Contact()s that we added.
         # But an elaborate discussion on that sounds a bit
         # beyond the scope of this course.
         for attribute in attributes(self):
@@ -122,7 +122,7 @@ class Addressbook(object):
                         # for now.
         newContact._Id = thisId
         self._newId += 1 # This increment might also be made depending
-                        # on whether the contact was succesfully added 
+                        # on whether the contact was succesfully added
                         # the Addressbook.
         #contact.add_attr( "_Id", thisId)
         self._contacts.append(newContact)
@@ -164,7 +164,7 @@ class Addressbook(object):
                             Clist[item]._Id,
                             Clist[item].full_print()
                             ))
-                if Id is None or Clist[item]._Id == Id:    
+                if Id is None or Clist[item]._Id == Id:
                     # The None case can result in multiple entries, the
                     # given Id will limit automatically to a single case.
                     target.append(item)
@@ -176,8 +176,8 @@ class Addressbook(object):
             logging.warning("Found no contact %s %s to remove"%(fname,sname))
 
         elif len(target) > 1 and Id is None:
-            # If there are more contacts with the same Id, they are 
-            # pointers to the same, non-anonymous contact and should 
+            # If there are more contacts with the same Id, they are
+            # pointers to the same, non-anonymous contact and should
             # all be removed.
             message =  'Multiple contacts "%s %s" found.\n'%(fname,sname)
             message += 'with Ids: '
@@ -190,10 +190,10 @@ class Addressbook(object):
             Clist.pop(target[0])
 
     def full_print(self):
-        list = "%s\n"%self
-        for contact in self._contacts: 
-            list += contact.full_print()
-        return list    
+        thisList = "%s\n"%self
+        for contact in self._contacts:
+            thisList += contact.full_print()
+        return thisList    
 
 
     def read_config(self, configfiles=None):
@@ -214,7 +214,7 @@ class Addressbook(object):
             if os.path.isfile(stdconfigfile):
                 standard_files.append(stdconfigfile)
                 logging.debug("Add config file [%s] to loading list."%stdconfigfile)
-            else:     
+            else:
                 logging.debug("Skipping non-existing config file [%s]."%stdconfigfile)
 
 
@@ -232,7 +232,7 @@ class Addressbook(object):
         message = "Try to read the configfile(s):"
         for filename in configfiles:
                 message += " %s\n"%filename
-        logging.info(message)    
+        logging.info(message)
 
         try:
             c_parser.read(configfiles)
@@ -247,13 +247,13 @@ class Addressbook(object):
         # Start reading the Config files:
         config = {}
         for section in c_parser.sections():
-            # Stuff is already structured in sections:    
+            # Stuff is already structured in sections:
             config[section] = {}
-            for option in c_parser.options(section): 
+            for option in c_parser.options(section):
                 value = c_parser.get(section, option)
                 config[section][option]=value
 
-        self.configuration = config        
+        self.configuration = config
 
         logging.debug(self.print_config())
         return self.configuration
@@ -307,7 +307,7 @@ class Addressbook(object):
 
         if os.path.exists(csvfilename):
 
-            with open(csvfilename, 'rU') as csvfile: 
+            with open(csvfilename, 'rU') as csvfile:
                 csv_content = csv.reader(csvfile,delimiter=',', quotechar='"')
                 for row in csv_content:
                     fname = row[4]
@@ -318,7 +318,7 @@ class Addressbook(object):
                     self.add_contact( newcontact)
 	
     def export_json(self):
-        # create the proper list 
+        # create the proper list
         #jsondict = {"Addressbook"}
         pass
         
@@ -383,7 +383,7 @@ class Contact(object):
 
     def __add__(self, other):
         """
-        Actually we are going to define this as a merge: return a 
+        Actually we are going to define this as a merge: return a
         new Contact with all the properties of the old one, AND new ones from
         the "other" object.
         """
@@ -457,10 +457,10 @@ class Contact(object):
             if callable(getattr(self, a)):
                 continue
             else:
-                myattrs.add(a)		
+                myattrs.add(a)
         return myattrs
 
-def main (args):    
+def main (args):
     """This is an entry point to run some tests on this module"""
     import doctest
 
