@@ -44,6 +44,7 @@ class Addressbook(object):
         if Addressbook.config_read is False:
             self.read_config()
             self.set_config()
+            Addressbook.config_read = True
         if name is None:
             name = Addressbook.default_name
 
@@ -158,13 +159,13 @@ class Addressbook(object):
         target = []
 
         #ToDo for item in enumerate(Clist):
-        for item in range(len(Clist)):
-            if fname == Clist[item].fname and sname == Clist[item].sname:
+        for (item,contact) in enumerate(Clist):
+            if fname == contact.fname and sname == contact.sname:
                 logging.debug("We got a hit on Id %d:\n %s"%(
-                            Clist[item]._Id,
-                            Clist[item].full_print()
+                            contact._Id,
+                            contact.full_print()
                             ))
-                if Id is None or Clist[item]._Id == Id:
+                if Id is None or contact._Id == Id:
                     # The None case can result in multiple entries, the
                     # given Id will limit automatically to a single case.
                     target.append(item)
@@ -221,7 +222,7 @@ class Addressbook(object):
         # a bit of a laborious way to prepend the standard filename:
         if configfiles is None:
             configfiles = standard_files
-            
+
         else:
             standard_files.extend(configfiles)
             configfiles = standard_files

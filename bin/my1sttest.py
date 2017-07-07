@@ -3,17 +3,18 @@
 import addressbook
 import logging
 logging.basicConfig(
-        level = logging.DEBUG)
+        level = logging.INFO)
 
 ab = addressbook.Addressbook()
-ab.read_config()
-ab.set_config()
 c1 = addressbook.Contact('John', 'Doe')
+c2 = addressbook.Contact('Jahn', 'Doe')
+c3 = addressbook.Contact('Jane', 'Doe')
 
-ac = addressbook.Addressbook()
-ad = addressbook.Addressbook(name="nog een boek")
+ab.add_contact(c1)
+ab.add_contact(c2)
+ab.add_contact(c3)
+ab.del_contact('Jane', 'Doe')
+
 print(ab)
-print(ac)
-print(ad)
 
 
