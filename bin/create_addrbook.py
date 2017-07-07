@@ -3,7 +3,7 @@ import argparse
 import addressbook
 import logging
 
-loggin.debug("""Python advanced: The simple solution to exercise 7.4-1:
+logging.debug("""Python advanced: The simple solution to exercise 7.4-1:
         \tscript addressbook creation with argparsed arguments.""")
 
 parser = argparse.ArgumentParser()
