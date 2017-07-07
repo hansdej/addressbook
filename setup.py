@@ -15,7 +15,7 @@ setup(
     license='GPLv3',
     author_email='j.dejonge@gmail.com',
     url='https://github.com/hansdej/addressbook',
-    keywords=['educational', 'addressbook', 'person data' ]
+    keywords=['educational', 'addressbook', 'person data' ],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',
@@ -28,6 +28,6 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
-        'Topic :: Software Development',
-    ],
+        'Topic :: Software Development'
+    ]
 )
