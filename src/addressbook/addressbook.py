@@ -170,7 +170,7 @@ class Addressbook(object):
                     target.append(item)
 
         logging.debug("target = %s"%target)
-                   
+
 
         if len(target) < 1:
             logging.warning("Found no contact %s %s to remove"%(fname,sname))
@@ -392,7 +392,7 @@ class Contact(object):
         for att in  other.get_attrs() | self.get_attrs() :
             if hasattr(self,att) :
                 continue
-            else: 
+            else:
                 new.add_attr(att,getattr(other,att))
         return new
    # @staticmethod
