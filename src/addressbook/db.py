@@ -72,7 +72,7 @@ if __name__ == "__main__":
     connection = sqlite3.connect(dbfilename)
 
     initialize_addressbook_db_schema(connection)
-    write_addressbook_to_db(connection)
+    write_addressbook_to_db(ab,connection)
 
 
 

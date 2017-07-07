@@ -15,7 +15,7 @@ __license__ = 'GNU gplv3'
 
 __all__ = [ ]
 
-def main(args):
+def init_main(args):
     """The main function is the entry point of a program"""
     # main is separated out into a function so that it too can be thoroughly
     # tested.
@@ -24,7 +24,7 @@ def main(args):
 if __name__ == '__main__':
     # This is the main body of this module. Ideally it should only contain at
     # most **one** call to the entry point of the program.
-    sys.exit(main(sys.argv))
+    sys.exit(init_main(sys.argv))
 
 # vim: tabstop=9 expandtab shiftwidth=4 softtabstop=4 showbreak=…
 
