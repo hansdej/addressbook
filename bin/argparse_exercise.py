@@ -36,11 +36,11 @@ cliargs = parser.parse_args()
 # I used one script to solve both problems: linked them (either hard or soft)
 # to one main script and use the called filename to determine which behaviour is used.
 # (I like to split related scripts as late as possible: I find maintenance easier with
-# all associate, equal level Code in one file 
+# all associate, equal level Code in one file.
 logging.debug('Program was called as \'%s\''%(sys.argv[0]))
 logging.debug('with arguments:%s'%cliargs)
 
-if "create_contact" in sys.argv[0]: 
+if "create_contact" in sys.argv[0]:
     fname = cliargs.firstname
     sname = cliargs.surname
     extra_attrs = cliargs.attr
@@ -60,7 +60,7 @@ if "create_contact" in sys.argv[0]:
         value = getattr(c, attribute)
         logging.debug("\t%s \t=> [%s]"%(label,value))
 
-elif "create_addrbook" in sys.argv[0]: 
+elif "create_addrbook" in sys.argv[0]:
     name = cliargs.name
 
     logging.debug('found addressbookname: \'%s\''%name)

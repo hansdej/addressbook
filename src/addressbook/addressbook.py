@@ -5,7 +5,7 @@ import os
 import logging
 import configparser
 import csv
-import json
+#import json
 
 def attributes(thing):
     """
@@ -35,7 +35,7 @@ class Addressbook(object):
         """
         Initialize the addressbook object:
 
-        >>> import addressbook                                                                                                  
+        >>> import addressbook
         >>> ab = addressbook.Addressbook("My Addressbook")
         >>> ab
         <class Addressbook "My Addressbook", containing 0 contacts>
@@ -50,16 +50,16 @@ class Addressbook(object):
         self.name       = name
         self._contacts  = []
         self._newId     = 0 # Use the underscore to prevent it be copied in a copy.
-	
+
     def __add__(self, added):
         newbook = self.copy()
 
         if isinstance(added,Contact):
-            """ Add one contact """
+            # Add one contact 
             newbook.add_contact(added)
 
         elif isinstance(added,Addressbook):
-            """ Merge the second addressbook """
+            # Merge the second addressbook
             for contact in added:
                 newbook.add_contact(contact)
 
@@ -105,9 +105,9 @@ class Addressbook(object):
         The base method to add a contact to an addressbook:
 
         >>> import addressbook
-        >>> ab = addressbook.Addressbook("My Addressbook")                                                                      
-        >>> ab.add_contact(addressbook.Contact('John', 'Doe'))                                                                                                                                                     
-        >>> ab.add_contact(addressbook.Contact('Jane', 'Doe'))                                                                                                                                                     
+        >>> ab = addressbook.Addressbook("My Addressbook")
+        >>> ab.add_contact(addressbook.Contact('John', 'Doe'))
+        >>> ab.add_contact(addressbook.Contact('Jane', 'Doe'))
         >>> ab
         <class Addressbook "My Addressbook", containing 2 contacts>
 
@@ -117,10 +117,10 @@ class Addressbook(object):
                         # We could also iterate through the existing
                         # list of contacts and check with "is" if the
                         # contact is already there and then refuse to
-                        # add this contact to the list an additional 
+                        # add this contact to the list an additional
                         # time again, but that 's a bit too complex
                         # for now.
-        newContact._Id = thisId 
+        newContact._Id = thisId
         self._newId += 1 # This increment might also be made depending
                         # on whether the contact was succesfully added 
                         # the Addressbook.
@@ -157,6 +157,7 @@ class Addressbook(object):
         Clist = self._contacts
         target = []
 
+        #ToDo for item in enumerate(Clist):
         for item in range(len(Clist)):
             if fname == Clist[item].fname and sname == Clist[item].sname:
                 logging.debug("We got a hit on Id %d:\n %s"%(
@@ -164,7 +165,7 @@ class Addressbook(object):
                             Clist[item].full_print()
                             ))
                 if Id is None or Clist[item]._Id == Id:    
-                    # The None case can result in multiple entries, the 
+                    # The None case can result in multiple entries, the
                     # given Id will limit automatically to a single case.
                     target.append(item)
 
@@ -185,7 +186,7 @@ class Addressbook(object):
             message += "\n\tNot deleting any: Please supply the ID of\n"
             message += "\tthe desired one."
             logging.warning(message)
-        else:            
+        else:
             Clist.pop(target[0])
 
     def full_print(self):
@@ -205,7 +206,7 @@ class Addressbook(object):
         standard_files = []
         # Expand and define the standard config files:
 
-        for stdconfigfile in [ 
+        for stdconfigfile in [
                 "%s/addressbook.ini"%os.path.dirname(__file__) ,
                 os.path.expanduser("~/.addressbook")
                 ]:
@@ -217,7 +218,7 @@ class Addressbook(object):
                 logging.debug("Skipping non-existing config file [%s]."%stdconfigfile)
 
 
-        # a bit of a laborious way to prepend the standard filename:    
+        # a bit of a laborious way to prepend the standard filename:
         if configfiles is None:
             configfiles = standard_files
             
@@ -243,7 +244,7 @@ class Addressbook(object):
             logging.error(error)
             exit(10)
 
-        # Start reading the Config files:    
+        # Start reading the Config files:
         config = {}
         for section in c_parser.sections():
             # Stuff is already structured in sections:    
@@ -276,6 +277,7 @@ class Addressbook(object):
             No [Contacts attributes] section with allowed attributes was found in
             one of the used ini-files.
             """)
+
         try:
             Addressbook.default_name=config["Addressbook"]["default_name"]
         except:
@@ -445,10 +447,11 @@ class Contact(object):
 
 
     def get_attrs( self):
+	"""
+        Obsoleted by the general function?
+	"""
         myattrs= set()
         for a in dir(self):
-            """
-	    """
             if a.startswith('_'):
                 continue
             if callable(getattr(self, a)):
@@ -479,6 +482,6 @@ def main (args):
 
     return 0
 
-if __name__ == '__main__': 
+if __name__ == '__main__':
     sys.exit(main(sys.argv))
 

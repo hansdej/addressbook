@@ -48,7 +48,7 @@ def write_addressbook_to_db(addressbook,connection):
         contact_id = cursor.lastrowid
         # The contact was inserted into the contacts table and we got
         # its id in this table that can be used in the atrributes table
-        # to identify the proper contact of a certain property in the 
+        # to identify the proper contact of a certain property in the
         # properties table.
 
         #for pr
@@ -68,7 +68,6 @@ if __name__ == "__main__":
     ab.add_contact(c1)
     ab.add_contact(c2)
 
-    
     dbfilename = "./addressdb.db"
     connection = sqlite3.connect(dbfilename)
 
