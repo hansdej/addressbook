@@ -114,19 +114,26 @@ class Addressbook(object):
 
         """
         thisId      = self._newId
-        newContact  = contact.copy()
+        if not isinstance(contact,Contact):
+            raise(TypeError(3,"Only Contacts can be added to an Addressbook"))
+        else:     
+            #newContact  = contact.copy()
                         # We could also iterate through the existing
                         # list of contacts and check with "is" if the
                         # contact is already there and then refuse to
                         # add this contact to the list an additional
                         # time again, but that 's a bit too complex
                         # for now.
-        newContact._Id = thisId
-        self._newId += 1 # This increment might also be made depending
+            # Apparently this is not desired. Comparing a found contact with 
+            # the added original fails because of this copy (in pytest) so 
+            # I removed the whole bloody copy again.
+            newContact = contact
+            newContact._Id = thisId
+            self._newId += 1 # This increment might also be made depending
                         # on whether the contact was succesfully added
                         # the Addressbook.
-        #contact.add_attr( "_Id", thisId)
-        self._contacts.append(newContact)
+            #contact.add_attr( "_Id", thisId)
+            self._contacts.append(newContact)
 
     def del_contact(self, fname, sname, Id=None):
         """
@@ -196,6 +203,26 @@ class Addressbook(object):
             thisList += contact.full_print()
         return thisList
 
+    def find_contact_by_name(self,search_fname, search_sname):
+        """
+        Search an addressbook for all contacts with the presented
+        name and return a list of the corresponding contacts.
+        
+        >>> import addressbook
+        >>> ab = addressbook.Addressbook()
+        >>> ab += addressbook.Contact("John", "Doe")
+        >>> ab += addressbook.Contact("Jane", "Doe")
+        >>> ab += addressbook.Contact("Pietje", "Puk")
+        >>> ab.find_contact_by_name("John", "Doe")
+        [<class Contact "Doe, John" >]
+
+
+        """
+        hits=[]
+        for contact in self._contacts:
+            if (contact.fname == search_fname) and (contact.sname == search_sname):
+                hits.append(contact)
+        return hits
 
     def read_config(self, configfiles=None):
         """
