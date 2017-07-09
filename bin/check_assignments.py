@@ -139,7 +139,6 @@ call(["../test/test_with_unittest.py"])
 
 logging.info("""
 Unittest finished (successfully?)        
-
 """)
 
 csvfile = "Data/FakeNameGenerator.csv"

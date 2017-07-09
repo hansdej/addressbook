@@ -116,7 +116,7 @@ class Addressbook(object):
         thisId      = self._newId
         if not isinstance(contact,Contact):
             raise(TypeError(3,"Only Contacts can be added to an Addressbook"))
-        else:     
+        else:
             #newContact  = contact.copy()
                         # We could also iterate through the existing
                         # list of contacts and check with "is" if the
@@ -207,7 +207,7 @@ class Addressbook(object):
         """
         Search an addressbook for all contacts with the presented
         name and return a list of the corresponding contacts.
-        
+
         >>> import addressbook
         >>> ab = addressbook.Addressbook()
         >>> ab += addressbook.Contact("John", "Doe")
