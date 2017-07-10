@@ -286,7 +286,7 @@ class Addressbook(object):
 
         logging.debug(cls.print_config())
         return cls.configuration
-    
+
     @classmethod
     def set_config(cls, config=None):
         """
@@ -339,7 +339,7 @@ class Addressbook(object):
                 csv_content = csv.reader(csvfile,delimiter=',', quotechar='"')
                 # Config should have been read at the creation of
                 # the first Addressbook instantiation.
-                csv_config = self.configuration["csv columns"] 
+                csv_config = self.configuration["csv columns"]
                 for row in csv_content:
                     attrs ={}
                     for label in csv_config:
@@ -348,7 +348,7 @@ class Addressbook(object):
                             fname = row[col]
                         elif label == 'sname':
                             sname = row[col]
-                        else:    
+                        else:
                             attrs[label] = row[col]
 
                     newcontact = Contact(fname, sname)
