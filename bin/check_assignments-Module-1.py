@@ -86,20 +86,9 @@ create_addrbook -> argparse_exercise.py
 
 And execute:
 ./create_contact --firstname John --surname Doe --attr email john@doe.org
-""")
-from subprocess import call
-
-call(["./create_contact", "--firstname","John","--surname", "Doe", "--attr",
-    "email", "John@doe.org"])
-
-logging.info("""
-
-And:        
 ./create_addrbook --name 'MyAddressbook'
-""")
-call( ["./create_addrbook", "--name",'MyAddressbook'])
-logging.info("""
 
+This is done in the check_assignments.sh script.
 """)
 
 logging.info("""
@@ -107,38 +96,6 @@ Exercise 1.7.5.1
 A lot of logging is used here already
 
 Module 1 finished.
-""")
-
-logging.info("""
-Exercise 2.6.1.[1-6]
-doctest: execute the module addressbook/src/addressbook.py
-
-""")
-call(["../src/addressbook/addressbook.py"])
-logging.info("""
-Doctest finished (successfully?)        
-
-""")
-
-logging.info("""
-Exercise 2.6.1.7
-Advantages of Doctest:
-* Illustrates simple how the code can be used.
-* Gives quick ability to testing ability of small and quick mods.
-* Enables test driven development close to the code itself.
-* ...
-Disadvantage
-* For complex tests it can clutter the in-code docmentation.
-""")
-
-logging.info("""
-Exercise 2.6.2.[1-5]
-Unittest: illstrated via ../test/test_with_unittest.py
-""")
-call(["../test/test_with_unittest.py"])
-
-logging.info("""
-Unittest finished (successfully?)        
 """)
 
 csvfile = "Data/FakeNameGenerator.csv"
