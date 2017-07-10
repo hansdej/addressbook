@@ -4,20 +4,20 @@ import addressbook
 
 ab = addressbook.Addressbook()
 
-c1 = addressbook.Contact('John', 'Doe')
-c2 = addressbook.Contact('Jane', 'Doe')
-c2.add_attr("email", "jane@doe.org")
+cnt1 = addressbook.Contact('John', 'Doe')
+cnt2 = addressbook.Contact('Jane', 'Doe')
+cnt2.add_attr("email", "jane@doe.org")
 
-c = c1+c2
+c = cnt1+cnt2
 for att in c.get_attrs():
 	print('Attr: \"%s\", value = [%s]'% (att,getattr(c,att)))
 
 print(ab)
-print(c1)
+print(cnt1)
 
-ab = ab + c1
-ab = ab + c2
-ab = ab + (c2 + c1)
+ab = ab + cnt1
+ab = ab + cnt2
+ab = ab + (cnt2 + cnt1)
 
 print(ab)
 
