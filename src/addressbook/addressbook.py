@@ -124,8 +124,8 @@ class Addressbook(object):
                         # add this contact to the list an additional
                         # time again, but that 's a bit too complex
                         # for now.
-            # Apparently this is not desired. Comparing a found contact with 
-            # the added original fails because of this copy (in pytest) so 
+            # Apparently this is not desired. Comparing a found contact with
+            # the added original fails because of this copy (in pytest) so
             # I removed the whole bloody copy again.
             newContact = contact
             newContact._Id = thisId
