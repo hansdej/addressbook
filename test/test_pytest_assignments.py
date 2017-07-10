@@ -10,7 +10,7 @@ def test_add_Contact_to_Addressboek():
 
     assert postlength - prelength == int(1)
 
-def test_non_Contact_cannot_be_added_to_addressbook():    
+def test_non_Contact_cannot_be_added_to_addressbook():
     addressbk = addressbook.Addressbook()
     non_contact ="John Doe"
     with pytest.raises(TypeError):
@@ -25,7 +25,7 @@ def test_Addressbook_can_be_searched_for_Contact_with_Name():
     addressbk.add_contact(c1)
     addressbk.add_contact(c2)
     addressbk.add_contact(c3)
-    
+
     foundC = addressbk.find_contact_by_name("Pietje","Puk")
     firstFind = foundC[0]
-    assert firstFind == c3 
+    assert firstFind == c3
