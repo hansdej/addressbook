@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "going through python functions:"
-python3 check_assignments-Module_1.py
+python3 check_assignments-Module-1.py
 
 echo "===================================="
 echo 'The solution to Exercise 1.7.4.1:
