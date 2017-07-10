@@ -224,7 +224,8 @@ class Addressbook(object):
                 hits.append(contact)
         return hits
 
-    def read_config(self, configfiles=None):
+    @classmethod
+    def read_config(cls, configfiles=None):
         """
         Read the parsed and standard configuration files
         if not None, the config file names should be a proper list:
@@ -281,23 +282,24 @@ class Addressbook(object):
                 value = c_parser.get(section, option)
                 config[section][option]=value
 
-        self.configuration = config
+        cls.configuration = config
 
-        logging.debug(self.print_config())
-        return self.configuration
-
-    def set_config(self, config=None):
+        logging.debug(cls.print_config())
+        return cls.configuration
+    
+    @classmethod
+    def set_config(cls, config=None):
         """
         """
         if config is None:
-            config = self.configuration
+            gen_config  = cls.configuration["Addressbook"]
+            attr_config = cls.configuration["Contact attributes"]
 
-        allowed_attributes = "Contact attributes"
 
         try:
-            for attr in config[allowed_attributes]:
+            for attr in attr_config:
                 # Now for some magick: call the class method:
-                description = config[allowed_attributes][attr]
+                description = attr_config[attr]
                 Contact.add_allowed_attr(attr,description)
 
         except KeyError:
@@ -307,16 +309,17 @@ class Addressbook(object):
             """)
 
         try:
-            Addressbook.default_name=config["Addressbook"]["default_name"]
+            Addressbook.default_name = gen_config["default_name"]
         except KeyError:
             logging.debug("""
             Addressbook default name was not changed in any config file.
             """)
 
-    def print_config(self):
+    @classmethod
+    def print_config(cls):
         config_summary =    "Config parameters ar loaded as:\n"
         config_summary +=   "<Config>\n"
-        config=self.configuration
+        config=cls.configuration
 
         for section in config:
             config_summary += "[%s]:\n"%section
@@ -334,12 +337,25 @@ class Addressbook(object):
 
             with open(csvfilename, 'rU') as csvfile:
                 csv_content = csv.reader(csvfile,delimiter=',', quotechar='"')
+                # Config should have been read at the creation of
+                # the first Addressbook instantiation.
+                csv_config = self.configuration["csv columns"] 
                 for row in csv_content:
-                    fname = row[4]
-                    sname = row[6]
-                    email = row[14]
+                    attrs ={}
+                    for label in csv_config:
+                        col = int(csv_config[label])
+                        if label == 'fname':
+                            fname = row[col]
+                        elif label == 'sname':
+                            sname = row[col]
+                        else:    
+                            attrs[label] = row[col]
+
                     newcontact = Contact(fname, sname)
-                    newcontact.add_attr('email',email)
+                    for attr in attrs:
+                        # Try to add them and see if it is allowed:
+                        attrData = attrs[attr]
+                        newcontact.add_attr(attr,attrData)
                     self.add_contact( newcontact)
 
     def export_json(self):
