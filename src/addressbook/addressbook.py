@@ -7,9 +7,17 @@ import configparser
 import csv
 #import json
 
-def attributes(thing):
+def attributes(thing):   
     """
     The helper function to get all the regular attributes
+
+    >>> import addressbook
+    >>> c = addressbook.Contact("John", "Doe")
+    >>> c.add_attr("email","john@Doe.org")
+    >>> sorted(addressbook.attributes(c))
+    ['email', 'fname', 'sname']
+    >>>
+
     """
     myattrs = set() # Since all properties should be unique,
                     # it should not be necessary to use a set here.
@@ -29,7 +37,7 @@ class Addressbook(object):
     """
     An address object.
     """
-    default_name = "Myn Addressbook"
+    default_name = "My Addressbook"
     config_read = False
     def __init__(self, name=None):
         """
@@ -53,6 +61,21 @@ class Addressbook(object):
         self._newId     = 0 # Use the underscore to prevent it be copied in a copy.
 
     def __add__(self, added):
+        """
+        The pseudo numeric addition. Returns a copy of the addressbook with the
+        contact added.
+
+        >>> import addressbook
+        >>> ab = addressbook.Addressbook("My Addressbook")
+        >>> ab + addressbook.Contact('John', 'Doe')
+        <class Addressbook "My Addressbook", containing 1 contacts>
+        >>> ab
+        <class Addressbook "My Addressbook", containing 0 contacts>
+        >>> ab += addressbook.Contact('John', 'Doe')
+        >>> ab
+        <class Addressbook "My Addressbook", containing 1 contacts>
+        """
+
         newbook = self.copy()
 
         if isinstance(added,Contact):
@@ -67,22 +90,67 @@ class Addressbook(object):
         return newbook
 
     def __len__(self):
-        """ The number of contacts is a usefull length """
+        """
+        The number of contacts is a usefull length
+
+        >>> import addressbook
+        >>> ab = addressbook.Addressbook("My Addressbook")
+        >>> ab += addressbook.Contact('John', 'Doe')
+        >>> len(ab)
+        1
+        >>>
+
+
+        """
         return len(self._contacts)
 
     def __repr__(self):
+        """
+        The standard representation of the Addressbook
+
+        >>> import addressbook
+        >>> addressbook.Addressbook("My Addressbook")
+        <class Addressbook "My Addressbook", containing 0 contacts>
+        """
+
         return '<class Addressbook \"%s\", containing %d contacts>'%(
             self.name, len(self)
             )
 
     def __iter__(self):
-        # Should return an iterator object
+        """
+        Return the intended iterator object
+
+        >>> import addressbook
+        >>> ab = addressbook.Addressbook("My Addressbook")
+        >>> ab += addressbook.Contact('John', 'Doe')
+        >>> ab += addressbook.Contact('Jane', 'Doe')
+        >>> for c in ab:
+        ...     print( "%s %s"%(c.fname,c.sname))
+        ... 
+        John Doe
+        Jane Doe
+        >>>
+
+        """
         return iter(self._contacts)
 
 
     def copy(self):
         """
         Make a copy of the addressbook
+        >>> import addressbook
+        >>> ab = addressbook.Addressbook("My Addressbook")
+        >>> ac = ab
+        >>> ad = ab.copy()
+        >>> ac == ab
+        True
+        >>> ad == ab
+        False
+        >>> print(ab)==print(ad)
+        <class Addressbook "My Addressbook", containing 0 contacts>
+        <class Addressbook "My Addressbook", containing 0 contacts>
+        True
         """
         newbook = Addressbook( self.name )
 
@@ -198,9 +266,21 @@ class Addressbook(object):
             Clist.pop(target[0])
 
     def full_print(self):
-        thisList = "%s\n"%self
+        """
+        return an elaborate string suitable for printing.
+
+        >>> import addressbook
+        >>> ab = addressbook.Addressbook("My Addressbook")
+        >>> ab += addressbook.Contact("John", "Doe")
+        >>> print(ab.full_print())
+        Addressbook: "My Addressbook" with 1 contacts:
+        * Contact: "Doe, John"
+            fname = John
+            sname = Doe
+        """
+        thisList = "Addressbook: \"%s\" with %d contacts:\n"%(self.name,len(self))
         for contact in self._contacts:
-            thisList += contact.full_print()
+            thisList += "* %s"%contact.full_print()
         return thisList
 
     def find_contact_by_name(self,search_fname, search_sname):
@@ -406,10 +486,10 @@ class Contact(object):
                )
 
     def full_print(self):
-        text = '<Contact: \"%s, %s\">\n'%(
+        text = 'Contact: \"%s, %s\"'%(
                     self.sname, self.fname)
         for attribute in sorted(self.get_attrs()):
-            text += '\t%s = %s\n'%(attribute,getattr(self, attribute))
+            text += '\n    %s = %s'%(attribute,getattr(self, attribute))
         return text
 
 
@@ -464,7 +544,6 @@ class Contact(object):
     def add_allowed_attr(cls,attr_name,attr_description):
         """
         Add an allowed attribute to the class
-        Example and doctest:
 
         >>> import addressbook
         >>> c1 = addressbook.Contact("John", "Doe")
@@ -487,6 +566,13 @@ class Contact(object):
     def get_attrs( self):
         """
         Obsoleted by the general function?
+        >>> import addressbook
+        >>> c = addressbook.Contact("John", "Doe")
+        >>> c.add_attr('email', 'John@doe.org')
+        >>> sorted(c.get_attrs())
+        ['email', 'fname', 'sname']
+        >>>
+
         """
         myattrs= set()
         for a in dir(self):
