@@ -7,7 +7,7 @@ import configparser
 import csv
 #import json
 
-def attributes(thing):   
+def attributes(thing):
     """
     The helper function to get all the regular attributes
 
@@ -127,7 +127,7 @@ class Addressbook(object):
         >>> ab += addressbook.Contact('Jane', 'Doe')
         >>> for c in ab:
         ...     print( "%s %s"%(c.fname,c.sname))
-        ... 
+        ...
         John Doe
         Jane Doe
         >>>
