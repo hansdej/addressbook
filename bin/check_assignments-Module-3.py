@@ -26,13 +26,14 @@ Exercise 3.5.2 Created JSON and YAML export modules:
 jsonout = csvfile.replace("csv","json")
 yamlout = csvfile.replace("csv","yaml")
 
-export = addressbook.to_json(ab,jsonout)
-export = addressbook.to_yaml(ab,yamlout)
+addressbook.to_json(ab,jsonout)
+addressbook.to_yaml(ab,yamlout)
 
 logging.info("""
-        Addresbook %s was exported to JSON-file:
+        Addresbook %s was exported to JSON and YAML-files:
         %s
-        """%(ab.name, export))
+        %s
+        """%(ab.name, jsonout, yamlout))
 
 
 logging.info("""

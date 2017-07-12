@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import addressbook
-import json
 
 ab = addressbook.Addressbook()
 
