@@ -63,3 +63,7 @@ $COMMAND
 cd -
     
 echo "===================================="
+
+echo "Continuing to Module 3:"
+python3 check_assignments-Module-3.py
+

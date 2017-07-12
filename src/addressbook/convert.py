@@ -23,7 +23,7 @@ def to_structure(thing):
         structure = {"Not an addresbook"}
     return structure
 
-def from_csv(csvfilename):
+def from_csv(csvfilename, name="csv imported"):
     """
     Read the contents of a csvfile into an addressbook
 
@@ -35,7 +35,7 @@ def from_csv(csvfilename):
 
     <class Addressbook "csv imported", containing 257 contacts>
     """
-    importsbook = Addressbook( "csv imported" )
+    importsbook = Addressbook( name )
 
     if os.path.exists(csvfilename):
         csv_config = Addressbook.configuration["csv columns"]

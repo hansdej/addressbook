@@ -11,31 +11,31 @@ logging.basicConfig(
 logging.info("""
 Exercise 3.5.1 Created a CSV import module
 """)
-ab = addressbook.Addressbook()
-c1 = addressbook.Contact('John', 'Doe')
-c2 = addressbook.Contact('Jane', 'Doe')
-c2.add_attr("email", "jane@doe.org")
-c3 = addressbook.Contact('Jane', 'Doe')
-
-for c in c1,c2,c3:
-    ab += c
 
 csvfile = "Data/FakeNameGenerator.csv"
+ab = addressbook.from_csv(csvfile, name = "My addressboek")
+logging.info("""
+        Addresbook %s loaded from file %s:
+        %s
+        """%(ab.name, csvfile, ab))
 
-#ab.import_csv(csvfile)
+logging.info("""
+Exercise 3.5.2 Created a JSON export module:
+""")
 
 jsonout = csvfile.replace("csv","json")
-if jsonout == csvfile:
-    # prevent overwriting of csv
-    fallback = "addressbook.json"
-    if jsonout == fallback:
-        jsonout = "adresboek.json"
-    else:
-        jsonout = fallback
 
-ab = ab+ab
+export = addressbook.to_json(ab,jsonout)
 
-print(ab.full_print())
-ab.del_contact("Jane", "Doe")
-ab.del_contact("Jane", "Doe",Id=4)
-print(ab.full_print())
+logging.info("""
+        Addresbook %s was exported to JSON-file:
+        %s
+        """%(ab.name, export))
+
+
+logging.info("""
+Exercise 3.5.3 The functionality was succesfully inserted in 
+a separate addressbook/convert.py.
+Please look into that file for more info
+""")
+
