@@ -97,7 +97,7 @@ def to_treeFormat(frombook,frmat, filename, **kargs):
     with open(filename,'w') as outfile:
         if frmat == 'json':
             json.dump(outData,outfile,indent=4)
-        elif frmat == 'yaml':     
+        elif frmat == 'yaml':
             yaml.dump(outData, outfile)
 
     return filename
