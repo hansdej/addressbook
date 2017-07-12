@@ -46,25 +46,25 @@ def from_csv(csvfilename):
             for row in csv_content:
                 if skiplines > 0:
                     skiplines = skiplines - 1
-                    next
-                attrs = {}
-                for label in csv_config:
-                    col = int(csv_config[label])
-                    # Since fname and sname are always there AND we need
-                    # them to define a new contact, these are assigned
-                    # separately from the list with the rest of the attributes.
-                    if label == 'fname':
-                        fname = row[col]
-                    elif label == 'sname':
-                        sname = row[col]
-                    else:
-                        attrs[label] = row[col]
-                newcontact = Contact(fname, sname)
-                for attr in attrs:
-                    # Try to add them, if allowed they will:
-                    attrData = attrs[attr]
-                    newcontact.add_attr(attr,attrData)
-                importsbook.add_contact( newcontact)
+                else 
+                    attrs = {}
+                    for label in csv_config:
+                        col = int(csv_config[label])
+                        # Since fname and sname are always there AND we need
+                        # them to define a new contact, these are assigned
+                        # separately from the list with the rest of the attributes.
+                        if label == 'fname':
+                            fname = row[col]
+                        elif label == 'sname':
+                            sname = row[col]
+                        else:
+                            attrs[label] = row[col]
+                    newcontact = Contact(fname, sname)
+                    for attr in attrs:
+                        # Try to add them, if allowed they will:
+                        attrData = attrs[attr]
+                        newcontact.add_attr(attr,attrData)
+                    importsbook.add_contact( newcontact)
     return importsbook
 
 def to_json(frombook, jsonfilename):
