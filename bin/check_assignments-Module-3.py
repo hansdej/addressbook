@@ -20,12 +20,14 @@ logging.info("""
         """%(ab.name, csvfile, ab))
 
 logging.info("""
-Exercise 3.5.2 Created a JSON export module:
+Exercise 3.5.2 Created JSON and YAML export modules:
 """)
 
 jsonout = csvfile.replace("csv","json")
+yamlout = csvfile.replace("csv","yaml")
 
 export = addressbook.to_json(ab,jsonout)
+export = addressbook.to_yaml(ab,yamlout)
 
 logging.info("""
         Addresbook %s was exported to JSON-file:
