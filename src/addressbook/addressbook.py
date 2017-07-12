@@ -397,6 +397,9 @@ class Addressbook(object):
 
     @classmethod
     def print_config(cls):
+        """
+        Returns a pretty formatting of the addressbook and its contacts.
+        """
         config_summary =    "Config parameters ar loaded as:\n"
         config_summary +=   "<Config>\n"
         config=cls.configuration
@@ -411,38 +414,20 @@ class Addressbook(object):
         config_summary +=   "</Config>\n"
         return config_summary
 
-    def import_csv(self,csvfilename):
+    def allowed_attrs_dict(self):
+        """
+        Implicit refer to the allowed attributes of the Contacts class.
+        """
+        return Contact.allowed_attrs_dict()
 
-        if os.path.exists(csvfilename):
+    def contacts_list(self):
+        """
+        Return the contacts as a list of dicts.
+        """
+        struct ={}
+        struct['contacts'] = [ c.contact_dict() for c in self ]
 
-            with open(csvfilename, 'rU') as csvfile:
-                csv_content = csv.reader(csvfile,delimiter=',', quotechar='"')
-                # Config should have been read at the creation of
-                # the first Addressbook instantiation.
-                csv_config = self.configuration["csv columns"]
-                for row in csv_content:
-                    attrs ={}
-                    for label in csv_config:
-                        col = int(csv_config[label])
-                        if label == 'fname':
-                            fname = row[col]
-                        elif label == 'sname':
-                            sname = row[col]
-                        else:
-                            attrs[label] = row[col]
-
-                    newcontact = Contact(fname, sname)
-                    for attr in attrs:
-                        # Try to add them and see if it is allowed:
-                        attrData = attrs[attr]
-                        newcontact.add_attr(attr,attrData)
-                    self.add_contact( newcontact)
-
-    def export_json(self):
-        # create the proper list
-        #jsondict = {"Addressbook"}
-        pass
-
+        return  struct
 
 class Contact(object):
     """
@@ -450,7 +435,7 @@ class Contact(object):
     New: Class Attributes
     """
     _allowed_attributes ={
-       'Id'    :"Id number",
+       'Id'   :"Id number",
        'fname':"First name",
        'sname':"Family name",
        'email':"Email address",
@@ -467,18 +452,24 @@ class Contact(object):
        'birthday': 'Birthday',
     }
 
-    def __init__(self, fname, sname):
+    def __init__(self, fname, sname, **kwargs):
         """
-        Create the new contact instance
+        Create the new contact instance with firstname and family/surname
 
         >>> import addressbook
-        >>> c1 = addressbook.Contact('John', 'Doe')
-        >>> c1
-        <class Contact "Doe, John" >
+        >>> c = addressbook.Contact('John', 'Doe',email='john@doe.org')
+        >>> print(c.full_print())
+        Contact: "Doe, John"
+            email = john@doe.org
+            fname = John
+            sname = Doe
+
         """
 
         self.fname=fname
         self.sname=sname
+        for attr,value in kwargs.items():
+            self.add_attr(attr, value)
 
     def __repr__(self):
         return '<class Contact \"%s, %s\" >'%(
@@ -566,6 +557,7 @@ class Contact(object):
     def get_attrs( self):
         """
         Obsoleted by the general function?
+
         >>> import addressbook
         >>> c = addressbook.Contact("John", "Doe")
         >>> c.add_attr('email', 'John@doe.org')
@@ -583,6 +575,42 @@ class Contact(object):
             else:
                 myattrs.add(a)
         return myattrs
+
+    @classmethod
+    def allowed_attrs_dict(cls):
+        """
+        A more public method to return a copy of the dict with allowed attributes.
+
+        >>> import addressbook
+        >>> a = addressbook.Contact.allowed_attrs_dict()
+        >>> b = addressbook.Contact._allowed_attributes
+        >>> a == b
+        True
+        >>> a is b
+        False
+        """
+        # In order to prevent messing up the more private _allowed_attributes
+        # dictionary, we return a copy to the "public" scope.
+        return cls._allowed_attributes.copy()
+
+    def contact_dict(self):
+        """
+        Return the Contact as a dictionary with properties.
+
+        >>> import addressbook
+        >>> c = addressbook.Contact("John", "Doe",email="John@doe.org")
+        >>> c_dict = c.contact_dict()
+        >>> sorted(c_dict)
+        ['email', 'fname', 'sname']
+        """
+
+        struct ={}
+        
+        for attr in self.get_attrs():
+            struct[attr]= getattr(self,attr)
+        
+        return struct
+
 
 def main (args):
     """This is an entry point to run some tests on this module"""

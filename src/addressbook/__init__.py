@@ -6,6 +6,7 @@ from __future__ import print_function
 import sys
 
 from .addressbook import *
+from .convert import *
 from .db import *
 
 __author__ = 'Hans de Jonge'

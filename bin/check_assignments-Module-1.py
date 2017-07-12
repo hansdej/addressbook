@@ -97,23 +97,3 @@ A lot of logging is used here already
 
 Module 1 finished.
 """)
-
-csvfile = "Data/FakeNameGenerator.csv"
-
-#ab.import_csv(csvfile)
-
-jsonout = csvfile.replace("csv","json")
-if jsonout == csvfile:
-    # prevent overwriting of csv
-    fallback = "addressbook.json"
-    if jsonout == fallback:
-        jsonout = "adresboek.json"
-    else:
-        jsonout = fallback
-
-ab = ab+ab
-
-print(ab.full_print())
-ab.del_contact("Jane", "Doe")
-ab.del_contact("Jane", "Doe",Id=4)
-print(ab.full_print())
