@@ -21,12 +21,12 @@ def to_structure(thing):
         structure = { attr: getattr(thing,attr) for attr in thing.get_attrs() }
     else:
         structure = {"Not an addresbook"}
-    return structure    
+    return structure
 
 def from_csv(csvfilename):
     """
     Read the contents of a csvfile into an addressbook
-    
+
     >>> import addressbook
     >>> filename = "FakeNameGenerator.csv"
     >>> addressbook.from_csv(filename)
@@ -47,11 +47,11 @@ def from_csv(csvfilename):
                 if skiplines > 0:
                     skiplines = skiplines - 1
                     next
-                attrs = {}    
+                attrs = {}
                 for label in csv_config:
                     col = int(csv_config[label])
                     # Since fname and sname are always there AND we need
-                    # them to define a new contact, these are assigned 
+                    # them to define a new contact, these are assigned
                     # separately from the list with the rest of the attributes.
                     if label == 'fname':
                         fname = row[col]
@@ -65,7 +65,7 @@ def from_csv(csvfilename):
                     attrData = attrs[attr]
                     newcontact.add_attr(attr,attrData)
                 importsbook.add_contact( newcontact)
-    return importsbook    
+    return importsbook
 
 def to_json(frombook, jsonfilename):
     """
@@ -79,7 +79,7 @@ def to_json(frombook, jsonfilename):
     >>> ab += addressbook.Contact("Jane", "Doe", mail="jane@doe.nl")
     >>> addressbook.to_json(ab, "ab.json")
     'ab.json'
-    
+
     """
     outData = {frombook.name:{}}
     outData[frombook.name]['allowed attributes'] = frombook.allowed_attrs_dict()
@@ -88,14 +88,14 @@ def to_json(frombook, jsonfilename):
     with open(jsonfilename,'w') as jsonfile:
         json.dump(outData,jsonfile,indent=4)
 
-    return jsonfilename    
+    return jsonfilename
 
 def convert_main (args):
     """This is an entry point to run some tests on this module"""
     import doctest
-    
+
     doctest.testmod()
 
-if __name__ == '__main__':    
+if __name__ == '__main__':
      sys.exit(convert_main(sys.argv))
 
