@@ -4,8 +4,6 @@ import sys
 import os
 import logging
 import configparser
-import csv
-#import json
 
 def attributes(thing):
     """
@@ -414,7 +412,8 @@ class Addressbook(object):
         config_summary +=   "</Config>\n"
         return config_summary
 
-    def allowed_attrs_dict(self):
+    @classmethod
+    def allowed_attrs_dict(cls):
         """
         Implicit refer to the allowed attributes of the Contacts class.
         """
