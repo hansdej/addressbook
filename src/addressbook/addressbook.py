@@ -420,15 +420,6 @@ class Addressbook(object):
         """
         return Contact.allowed_attrs_dict()
 
-    def contacts_list(self):
-        """
-        Return the contacts as a list of dicts.
-        """
-        struct ={}
-        struct['contacts'] = [ c.contact_dict() for c in self ]
-
-        return  struct
-
 class Contact(object):
     """
     A Contact object.
@@ -592,25 +583,6 @@ class Contact(object):
         # In order to prevent messing up the more private _allowed_attributes
         # dictionary, we return a copy to the "public" scope.
         return cls._allowed_attributes.copy()
-
-    def contact_dict(self):
-        """
-        Return the Contact as a dictionary with properties.
-
-        >>> import addressbook
-        >>> c = addressbook.Contact("John", "Doe",email="John@doe.org")
-        >>> c_dict = c.contact_dict()
-        >>> sorted(c_dict)
-        ['email', 'fname', 'sname']
-        """
-
-        struct ={}
-        
-        for attr in self.get_attrs():
-            struct[attr]= getattr(self,attr)
-        
-        return struct
-
 
 def main (args):
     """This is an entry point to run some tests on this module"""
