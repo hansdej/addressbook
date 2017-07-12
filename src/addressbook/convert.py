@@ -46,7 +46,7 @@ def from_csv(csvfilename):
             for row in csv_content:
                 if skiplines > 0:
                     skiplines = skiplines - 1
-                else 
+                else:
                     attrs = {}
                     for label in csv_config:
                         col = int(csv_config[label])
