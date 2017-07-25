@@ -79,15 +79,32 @@ def write_contacts_to_db(addressbook,connection):
     connection.commit()
 
 def write_attrs_to_db(contact,connection):
-        for attr in contact.get_attrs():
-            cId = contact._dbId
-            value = getattr(contact,attr)
+    cursor=connection.cursor()
+    for attr in contact.get_attrs():
+        cId = contact._dbId
+        value = getattr(contact,attr)
 
-            insert_cmd = u"""
-            INSERT INTO %s (contact, attr, value) VALUES (%d,'%s','%s')
-            """%(attrs_table,cId,attr,value)
-            cursor.execute(insert_cmd)
+        insert_cmd = u"""
+        INSERT INTO %s (contact, attr, value) VALUES (%d,'%s','%s')
+        """%(attrs_table,cId,attr,value)
+        cursor.execute(insert_cmd)
     connection.commit()
+
+def save_addressbook_to_db(addressbook,dbfilename):
+    connection = sqlite3.connect(dbfilename)
+
+    initialize_addressbook_db_schema(connection)
+
+    write_allowed_attributes_to_db(addressbook,connection)
+
+    write_contacts_to_db(addressbook,connection)
+    for contact in addressbook:
+        write_attrs_to_db(contact,connection)
+
+
+
+
+
 
 if __name__ == "__main__":
     # initialize an addressbook:
@@ -99,10 +116,7 @@ if __name__ == "__main__":
     ab.add_contact(c2)
 
     dbfilename = "./addressdb.db"
-    connection = sqlite3.connect(dbfilename)
-
-    initialize_addressbook_db_schema(connection)
-    write_addressbook_to_db(ab,connection)
+    save_addressbook_to_db(ab,dbfilename)
 
 
 
