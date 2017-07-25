@@ -49,7 +49,7 @@ def initialize_addressbook_db_schema(connection):
     connection.commit()
 
 
-def write_addressbook_to_db(addressbook,connection):
+def write_allowed_attributes_to_db(addressbook,connection):
     cursor=connection.cursor()
     for attrname,description in addressbook.allowed_attrs_dict().items():
 
@@ -58,25 +58,27 @@ def write_addressbook_to_db(addressbook,connection):
         """%(allowed_table,attrname,description)
 
         cursor.execute(insert_cmd)
+    connection.commit()
+
+def write_contacts_to_db(addressbook,connection):
+    cursor=connection.cursor()
 
     for contact in addressbook:
-        # Add a _dbId to see if the contact is already added, depending
-        # on the policy's of handling duplicates.
-        pass
-    dbId = 0
-    for contact in addressbook:
+
         insert_cmd = u"""
         INSERT INTO %s (fname, sname) VALUES ('%s','%s')
         """%(contacts_table,contact.fname,contact.sname)
         cursor.execute(insert_cmd)
-        
+
         # This is None if executescript or some other method than
         # execute is used.
         contact._dbId = cursor.lastrowid
         # The contact was inserted into the contacts table.
         # this numeric ID is to be used in the atrributes table
         # to link the attributes to the proper contact.
+    connection.commit()
 
+def write_attrs_to_db(contact,connection):
         for attr in contact.get_attrs():
             cId = contact._dbId
             value = getattr(contact,attr)
