@@ -62,6 +62,7 @@ class Addressbook(object):
         """
         The pseudo numeric addition. Returns a copy of the addressbook with the
         contact added.
+        (N.B. the contacts themselves are not copied.)
 
         >>> import addressbook
         >>> ab = addressbook.Addressbook("My Addressbook")
@@ -73,9 +74,9 @@ class Addressbook(object):
         >>> ab
         <class Addressbook "My Addressbook", containing 1 contacts>
         """
-
         newbook = self.copy()
 
+        # This add_contact-method is the primitive of this "method".
         if isinstance(added,Contact):
             # Add one contact
             newbook.add_contact(added)
@@ -164,7 +165,6 @@ class Addressbook(object):
         #Copy all the existing entries:
         for contact in self:
             newbook.add_contact(contact)
-
         return newbook
 
     def add_contact(self, contact):
@@ -180,19 +180,19 @@ class Addressbook(object):
 
         """
         thisId      = self._newId
+        already_there = False
+        for c in self:
+            # Bluntly check if the contact is already there
+            if c is contact:
+                already_there = True
+                
+
         if not isinstance(contact,Contact):
             raise(TypeError(3,"Only Contacts can be added to an Addressbook"))
+        elif already_there == True:
+
+            logging.warning("Contact already in addressbook %s."%self.name)
         else:
-            #newContact  = contact.copy()
-                        # We could also iterate through the existing
-                        # list of contacts and check with "is" if the
-                        # contact is already there and then refuse to
-                        # add this contact to the list an additional
-                        # time again, but that 's a bit too complex
-                        # for now.
-            # Apparently this is not desired. Comparing a found contact with
-            # the added original fails because of this copy (in pytest) so
-            # I removed the whole bloody copy again.
             newContact = contact
             newContact._Id = thisId
             self._newId += 1 # This increment might also be made depending
@@ -549,8 +549,7 @@ class Contact(object):
         Obsoleted by the general function?
 
         >>> import addressbook
-        >>> c = addressbook.Contact("John", "Doe")
-        >>> c.add_attr('email', 'John@doe.org')
+        >>> c = addressbook.Contact("John", "Doe",email='John@doe.org')
         >>> sorted(c.get_attrs())
         ['email', 'fname', 'sname']
         >>>

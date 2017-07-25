@@ -2,27 +2,36 @@
 
 import addressbook
 import sqlite3
+import logging
+
+# Generate a table called "contacts" with a unique ID and fname & sname.
+# If one already exists: drop it first.
+# The id is an numeric, unique one.
+contacts_table = "contacts"
+attrs_table = "attributes"
+allowed_table = "allowed_attrs"
 
 make_contacts_table = """
 DROP TABLE IF EXISTS contacts;
-CREATE TABLE contacts (
+CREATE TABLE %s (
     id      INTEGER  PRIMARY KEY AUTOINCREMENT NOT NULL,
     fname   CHAR(30),
     sname   CHAR(30)
 );
-"""
+"""%contacts_table
 
+# Generate a table of allowed contacts.
 make_allowed_attrs_table = """
 DROP TABLE IF EXISTS allowed_attrs;
-CREATE TABLE allowed_attrs (
+CREATE TABLE %s (
     attrname  CHAR(30) PRIMARY KEY UNIQUE     NOT NULL,
     desc      CHAR(255)
 );
-"""
+"""%allowed_table
 
 make_attributes_table = """
 DROP TABLE IF EXISTS attributes;
-CREATE TABLE attributes (
+CREATE TABLE %s (
     id      INTEGER  PRIMARY KEY AUTOINCREMENT NOT NULL,
     contact INTEGER               NOT NULL,
     attr    CHAR(30)              NOT NULL,
@@ -30,39 +39,58 @@ CREATE TABLE attributes (
     FOREIGN KEY(contact) REFERENCES contacts(id),
     FOREIGN KEY(attr) REFERENCES allowed_attrs(attr)
 );
-"""
+"""%attrs_table
 
 def initialize_addressbook_db_schema(connection):
     cursor = connection.cursor()
     cursor.executescript(make_contacts_table)
     cursor.executescript(make_allowed_attrs_table)
     cursor.executescript(make_attributes_table)
-    cursor.commit()
+    connection.commit()
+
 
 def write_addressbook_to_db(addressbook,connection):
     cursor=connection.cursor()
+    for attrname,description in addressbook.allowed_attrs_dict().items():
+
+        insert_cmd = u"""
+        INSERT INTO %s (attrname, desc) VALUES ('%s','%s')
+        """%(allowed_table,attrname,description)
+
+        cursor.execute(insert_cmd)
+
+    for contact in addressbook:
+        # Add a _dbId to see if the contact is already added, depending
+        # on the policy's of handling duplicates.
+        pass
+    dbId = 0
     for contact in addressbook:
         insert_cmd = u"""
-        INSERT INTO contacts (contact, fname, sname) VALUES "(%s,%s)"
-        """
-        contact_id = cursor.lastrowid
-        # The contact was inserted into the contacts table and we got
-        # its id in this table that can be used in the atrributes table
-        # to identify the proper contact of a certain property in the
-        # properties table.
+        INSERT INTO %s (fname, sname) VALUES ('%s','%s')
+        """%(contacts_table,contact.fname,contact.sname)
+        cursor.execute(insert_cmd)
+        
+        # This is None if executescript or some other method than
+        # execute is used.
+        contact._dbId = cursor.lastrowid
+        # The contact was inserted into the contacts table.
+        # this numeric ID is to be used in the atrributes table
+        # to link the attributes to the proper contact.
 
-        #for pr
+        for attr in contact.get_attrs():
+            cId = contact._dbId
+            value = getattr(contact,attr)
 
-
-
-
-
-    cursor.commit()
+            insert_cmd = u"""
+            INSERT INTO %s (contact, attr, value) VALUES (%d,'%s','%s')
+            """%(attrs_table,cId,attr,value)
+            cursor.execute(insert_cmd)
+    connection.commit()
 
 if __name__ == "__main__":
     # initialize an addressbook:
     ab = addressbook.Addressbook()
-    c1 = addressbook.Contact("John", "Doe")
+    c1 = addressbook.Contact("John", "Doe",email="john@doe.org")
     c2 = addressbook.Contact("Jane", "Doe")
     c2.add_attr('phone', '+31(0)63414214')
     ab.add_contact(c1)
