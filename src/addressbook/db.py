@@ -62,7 +62,7 @@ def do_transaction(connection,query,params):
     try:
         cursor.execute(query,params)
         dblog.info('executed:"%s,%s"'%(query,params))
-    except:
+    except OperationalError:
         dblog.error("sqlite3 Operational error while trying: %s %s"%(query,params))
 
     return cursor
@@ -110,7 +110,7 @@ def write_attrs_to_db(contact,connection):
         cId = contact._dbId
         value = getattr(contact,attr)
 
-        # Use " to circumfer the apostrophe problem. 
+        # Use " to circumfer the apostrophe problem.
         query =  u"""INSERT INTO table (contact, attr, value) VALUES (?,?,?)"""
         query = query.replace('table',attrs_table)
         params = (cId, attr, value)
