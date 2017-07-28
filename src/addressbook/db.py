@@ -54,6 +54,7 @@ def initialize_addressbook_db_schema(connection):
 
 def do_transaction(connection,query,params):
     """
+    Execute a transaction and show its code (for debugging)
     """
     dblog.debug('inserting: "%s",%s'%(query,params))
 
@@ -108,19 +109,21 @@ def write_contacts_to_db(addressbook,connection):
 
         # This is None if executescript or some other method than
         # execute is used.
-        contact._dbId = int(cursor.lastrowid)
+        cId = int(cursor.lastrowid)
+
+        write_attrs_to_db(contact,cId,connection)
+
 
         # The contact was inserted into the contacts table.
         # this numeric ID is to be used in the atrributes table
         # to link the attributes to the proper contact.
     connection.commit()
 
-def write_attrs_to_db(contact,connection):
+def write_attrs_to_db(contact,cId,connection):
     """
     """
     for attr in contact.get_attrs():
 
-        cId = contact._dbId
         value = getattr(contact,attr)
 
         # Use " to circumfer the apostrophe problem.
@@ -141,9 +144,6 @@ def save_addressbook_to_db(addressbook,dbfilename):
     write_allowed_attributes_to_db(addressbook,connection)
 
     write_contacts_to_db(addressbook,connection)
-    for contact in addressbook:
-        write_attrs_to_db(contact,connection)
-
 
 def read_db_allowed_attrs(connection):
     """
