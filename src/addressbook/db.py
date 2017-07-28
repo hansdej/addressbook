@@ -47,10 +47,9 @@ def initialize_addressbook_db_schema(connection):
     """ rewrites the pretty fixed database schema into
     the sqlite database file.
     """
-    cursor = connection.cursor()
-    cursor.executescript(make_contacts_table)
-    cursor.executescript(make_allowed_attrs_table)
-    cursor.executescript(make_attributes_table)
+    do_transactionscript(connection,make_contacts_table)
+    do_transactionscript(connection,make_allowed_attrs_table)
+    do_transactionscript(connection,make_attributes_table)
     connection.commit()
 
 def do_transaction(connection,query,params):
@@ -62,10 +61,24 @@ def do_transaction(connection,query,params):
     try:
         cursor.execute(query,params)
         dblog.info('executed:"%s,%s"'%(query,params))
-    except OperationalError:
+    except sqlite3.OperationalError:
         dblog.error("sqlite3 Operational error while trying: %s %s"%(query,params))
 
     return cursor
+
+def do_transactionscript(connection, queries):
+
+    dblog.debug('inserting: "%s"'%queries)
+
+    cursor = connection.cursor()
+    try:
+        cursor.executescript(queries)
+        dblog.info('executed:"%s"'%queries)
+    except sqlite3.OperationalError:
+        dblog.error("sqlite3 Operational error while trying: %s "%queries)
+
+    return cursor
+
 
 def write_allowed_attributes_to_db(addressbook,connection):
     """
