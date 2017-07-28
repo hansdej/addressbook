@@ -15,25 +15,25 @@ dblog = logging.getLogger('dblogger')
 
 make_contacts_table = """
 DROP TABLE IF EXISTS contacts;
-CREATE TABLE %(table)s (
+CREATE TABLE table (
     id      INTEGER  PRIMARY KEY AUTOINCREMENT NOT NULL,
     fname   CHAR(30),
     sname   CHAR(30)
 );
-"""%({'table':contacts_table})
+""".replace('table',contacts_table)
 
 # Generate a table of allowed contacts.
 make_allowed_attrs_table = """
-DROP TABLE IF EXISTS allowed_attrs;
-CREATE TABLE %(table)s (
+DROP TABLE IF EXISTS table;
+CREATE TABLE table (
     attrname  CHAR(30) PRIMARY KEY UNIQUE     NOT NULL,
     desc      CHAR(255)
 );
-"""%({'table': allowed_table})
+""".replace('table', allowed_table )
 
 make_attributes_table = """
-DROP TABLE IF EXISTS attributes;
-CREATE TABLE %(table)s (
+DROP TABLE IF EXISTS table;
+CREATE TABLE table (
     id      INTEGER  PRIMARY KEY AUTOINCREMENT NOT NULL,
     contact INTEGER               NOT NULL,
     attr    CHAR(30)              NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE %(table)s (
     FOREIGN KEY(contact) REFERENCES contacts(id),
     FOREIGN KEY(attr) REFERENCES allowed_attrs(attr)
 );
-"""%({'table': attrs_table})
+""".replace('table', attrs_table)
 
 def initialize_addressbook_db_schema(connection):
     """ rewrites the pretty fixed database schema into
@@ -53,16 +53,17 @@ def initialize_addressbook_db_schema(connection):
     cursor.executescript(make_attributes_table)
     connection.commit()
 
-def do_transaction(transaction,connection):
+def do_transaction(connection,query,params):
     """
     """
-    dblog.debug('inserting: "%s"'%transaction)
+    dblog.debug('inserting: "%s",%s'%(query,params))
+
     cursor = connection.cursor()
     try:
-        cursor.execute(transaction)
-        dblog.info('executed:"%s"'%transaction)
-    except sqlite3.OperationalError:
-        dblog.error("sqlite3 Operational error while trying: %s"%transaction)
+        cursor.execute(query,params)
+        dblog.info('executed:"%s,%s"'%(query,params))
+    except:
+        dblog.error("sqlite3 Operational error while trying: %s %s"%(query,params))
 
     return cursor
 
@@ -71,13 +72,12 @@ def write_allowed_attributes_to_db(addressbook,connection):
     """
 
     for attrname,description in addressbook.allowed_attrs_dict().items():
-        # Use " to circumfer the apostrophe problem.
-        query = \
-            u'INSERT INTO %(table)s (attrname, desc) VALUES ("%(attr)s","%(desc)s")'\
-            %({  'table':allowed_table,
-                'attr':attrname,
-                'desc':description  })
-        do_transaction(query, connection)
+
+        query = u"""INSERT INTO table (attrname, desc) VALUES (?,?)"""
+        query = query.replace('table',allowed_table,)
+        params =(attrname, description)
+        do_transaction(connection, query, params)
+
     connection.commit()
 
 def write_contacts_to_db(addressbook,connection):
@@ -86,17 +86,17 @@ def write_contacts_to_db(addressbook,connection):
 
     for contact in addressbook:
         # Use " to circumfer the apostrophe problem.
-        query = u"""INSERT INTO %s (fname, sname) VALUES ("%s","%s")"""
-        params = (contacts_table, contact.fname, contact.sname)
+        query = u"""INSERT INTO table (fname, sname) VALUES (?,?)"""
+        query = query.replace('table',contacts_table)
+        params = (contact.fname, contact.sname)
 
 
-        cursor = connection.cursor()
-        cursor.execute(query,params)
-        print(cursor.lastrowid)
+        cursor = do_transaction( connection, query, params)
 
         # This is None if executescript or some other method than
         # execute is used.
         contact._dbId = int(cursor.lastrowid)
+
         # The contact was inserted into the contacts table.
         # this numeric ID is to be used in the atrributes table
         # to link the attributes to the proper contact.
@@ -111,12 +111,11 @@ def write_attrs_to_db(contact,connection):
         value = getattr(contact,attr)
 
         # Use " to circumfer the apostrophe problem. 
-        parameters = {'table':attrs_table,'cId':cId,'attr':attr,'value':value}
+        query =  u"""INSERT INTO table (contact, attr, value) VALUES (?,?,?)"""
+        query = query.replace('table',attrs_table)
+        params = (cId, attr, value)
+        do_transaction(connection ,query, params)
 
-        query =  u'INSERT INTO %(table)s (contact, attr, value)'%(parameters)
-        query += u' VALUES (%(cId)d,"%(attr)s","%(value)s")'%(parameters)
-
-        cursor = do_transaction(query,connection)
     connection.commit()
 
 def save_addressbook_to_db(addressbook,dbfilename):
@@ -136,22 +135,28 @@ def save_addressbook_to_db(addressbook,dbfilename):
 def read_db_allowed_attrs(connection):
     """
     """
-    query = "SELECT * FROM %s"%allowed_table
+    query = u"""SELECT * FROM table"""
+    query = query.replace('table',allowed_table)
+    params = ()
 
-    allowed_attrs = connection.execute(query).fetchall()
+    allowed_attrs = do_transaction(connection, query, params).fetchall()
+
     for attr, desc in allowed_attrs:
         addressbook.Contact.add_allowed_attr(attr,desc)
 
 def read_db_contact_attributes(connection,cId ,contact):
     """
     """
-    query  = "SELECT attr,value FROM %s WHERE contact = %d"%(attrs_table,cId)
-    query += " EXCEPT SELECT attr,value FROM %s"%(attrs_table)
-    query += " WHERE attr='fname' OR attr='sname'"
+    query  = u"""SELECT attr,value FROM table WHERE contact = ? """
+    query += u""" EXCEPT SELECT attr,value FROM table """
+    query += u""" WHERE attr='fname' OR attr='sname' """
+    query = query.replace('table',attrs_table)
+
+    params = (cId,)
 
     #cursor = do_transaction(query,connection)
     #c_attrs= cursor.fetchall()
-    c_attrs= do_transaction(query,connection).fetchall()
+    c_attrs= do_transaction(connection,query,params).fetchall()
 
     for attr,value in c_attrs:
         contact.add_attr(attr,value)
@@ -159,8 +164,11 @@ def read_db_contact_attributes(connection,cId ,contact):
 def read_db_contacts(connection, abook):
     """
     """
-    query = "SELECT * FROM %s"%contacts_table
-    allcontacts = do_transaction(query,connection).fetchall()
+    query = u"""SELECT * FROM table """
+    query = query.replace('table',contacts_table)
+    params = ()
+
+    allcontacts = do_transaction(connection,query,params).fetchall()
 
     for cId,fname,sname in allcontacts:
         contact = addressbook.Contact(fname, sname)
