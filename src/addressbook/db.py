@@ -86,14 +86,12 @@ def write_contacts_to_db(addressbook,connection):
 
     for contact in addressbook:
         # Use " to circumfer the apostrophe problem.
-        query =\
-            u'INSERT INTO %(table)s (fname, sname) VALUES ("%(fname)s","%(sname)s")'\
-            %({ 'table':contacts_table,
-                'fname':contact.fname,
-                'sname':contact.sname })
+        query = u"""INSERT INTO %s (fname, sname) VALUES ("%s","%s")"""
+        params = (contacts_table, contact.fname, contact.sname)
 
 
-        cursor = do_transaction(query,connection)
+        cursor = connection.cursor()
+        cursor.execute(query,params)
         print(cursor.lastrowid)
 
         # This is None if executescript or some other method than
