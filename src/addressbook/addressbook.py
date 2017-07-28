@@ -9,15 +9,6 @@ import configparser
 logging_configfile = "%s/addressbook-logging.ini"%os.path.dirname(__file__)
 logging.config.fileConfig(logging_configfile,disable_existing_loggers=True)
 
-def initialize_logging(config_file=None):
-    """
-    Initialize logging for this module
-    """
-    configuration_file = logging_configfile if config_file is None else config_file
-    logging.config.fileConfig(configfile,disable_existing_loggers=True)
-
-
-
 def attributes(thing):
     """
     The helper function to get all the regular attributes
