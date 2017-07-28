@@ -3,7 +3,20 @@
 import sys
 import os
 import logging
+import logging.config
 import configparser
+
+logging_configfile = "%s/addressbook-logging.ini"%os.path.dirname(__file__)
+logging.config.fileConfig(logging_configfile,disable_existing_loggers=True)
+
+def initialize_logging(config_file=None):
+    """
+    Initialize logging for this module
+    """
+    configuration_file = logging_configfile if config_file is None else config_file
+    logging.config.fileConfig(configfile,disable_existing_loggers=True)
+
+
 
 def attributes(thing):
     """
@@ -185,7 +198,7 @@ class Addressbook(object):
             # Bluntly check if the contact is already there
             if c is contact:
                 already_there = True
-                
+
 
         if not isinstance(contact,Contact):
             raise(TypeError(3,"Only Contacts can be added to an Addressbook"))
@@ -586,16 +599,17 @@ def main (args):
     """This is an entry point to run some tests on this module"""
     import doctest
 
-    logging.basicConfig(
-            level = logging.DEBUG
-            )
+    configfile = "%s/logging.ini"%os.path.dirname(__file__)
+    logging.config.fileConfig(configfile,disable_existing_loggers=True)
 
+    #logging.basicConfig(
+    #        level = logging.DEBUG
+    #        )
     log = logging.getLogger(__name__)
     log.setLevel(logging.DEBUG)
     console = logging.StreamHandler(stream=sys.stdout)
     console.setLevel(logging.DEBUG)
     log.addHandler(console)
-
 
     logging.info("Loading testmod")
     # Ik vermoed dat doctest de logging messages niet doorkrijgt
@@ -605,5 +619,6 @@ def main (args):
     return 0
 
 if __name__ == '__main__':
+    initialize_logging()
     sys.exit(main(sys.argv))
 

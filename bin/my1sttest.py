@@ -12,6 +12,10 @@ ab += addressbook.Contact('Jane', 'Doe')
 
 ab.del_contact('Jane', 'Doe')
 
-print(ab)
+#print(ab)
+
+book = addressbook.load_addressbook_from_db("Data/addressboek.db")
+
+print(book)
 
 
