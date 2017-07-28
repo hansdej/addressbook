@@ -77,7 +77,7 @@ def write_allowed_attributes_to_db(addressbook,connection):
             %({  'table':allowed_table,
                 'attr':attrname,
                 'desc':description  })
-        cursor = do_transaction(query, connection)
+        do_transaction(query, connection)
     connection.commit()
 
 def write_contacts_to_db(addressbook,connection):
@@ -88,7 +88,7 @@ def write_contacts_to_db(addressbook,connection):
         # Use " to circumfer the apostrophe problem.
         query =\
             u'INSERT INTO %(table)s (fname, sname) VALUES ("%(fname)s","%(sname)s")'\
-            %({  'table':contacts_table,
+            %({ 'table':contacts_table,
                 'fname':contact.fname,
                 'sname':contact.sname })
 
@@ -112,12 +112,11 @@ def write_attrs_to_db(contact,connection):
         cId = contact._dbId
         value = getattr(contact,attr)
 
-        # Use " to circumfer the apostrophe problem.
-        query =  u'INSERT INTO %(table)s (contact, attr, value)'%({'table':attrs_table})
-        query += u' VALUES (%(cId)d,"%(attr)s","%(value)s")'%({'table':attrs_table,
-                'cId':cId,
-                'attr':attr,
-                'value':value})
+        # Use " to circumfer the apostrophe problem. 
+        parameters = {'table':attrs_table,'cId':cId,'attr':attr,'value':value}
+
+        query =  u'INSERT INTO %(table)s (contact, attr, value)'%(parameters)
+        query += u' VALUES (%(cId)d,"%(attr)s","%(value)s")'%(parameters)
 
         cursor = do_transaction(query,connection)
     connection.commit()
