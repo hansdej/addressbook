@@ -13,6 +13,7 @@ allowed_table = "allowed_attrs"
 
 dblog = logging.getLogger('dblogger')
 
+
 make_contacts_table = """
 DROP TABLE IF EXISTS contacts;
 CREATE TABLE table (
@@ -43,6 +44,7 @@ CREATE TABLE table (
 );
 """.replace('table', attrs_table)
 
+
 def initialize_addressbook_db_schema(connection):
     """ rewrites the pretty fixed database schema into
     the sqlite database file.
@@ -52,40 +54,42 @@ def initialize_addressbook_db_schema(connection):
     do_transactionscript(connection,make_attributes_table)
     connection.commit()
 
+
 def do_transaction(connection,query,params):
     """
     Execute a transaction and show its code (for debugging)
     """
-    dblog.debug('inserting: "%s",%s'%(query,params))
+    dblog.info('EXECUTING TO DB:\n\t"%s",%s'%(query,params))
 
     cursor = connection.cursor()
     try:
         cursor.execute(query,params)
-        dblog.info('executed:"%s,%s"'%(query,params))
+        dblog.debug(' Finished:\n\t"%s,%s"'%(query,params))
     except sqlite3.OperationalError:
         dblog.error("sqlite3 Operational error while trying: %s %s"%(query,params))
 
     return cursor
 
+
 def do_transactionscript(connection, queries):
 
-    dblog.debug('inserting: "%s"'%queries)
+    dblog.info('SCRIPTING TO DB:\n\t"%s"'%queries)
 
     cursor = connection.cursor()
     try:
         cursor.executescript(queries)
-        dblog.info('executed:"%s"'%queries)
+        dblog.debug(' Finished:\n\t"%s"'%queries)
     except sqlite3.OperationalError:
         dblog.error("sqlite3 Operational error while trying: %s "%queries)
 
     return cursor
 
 
-def write_allowed_attributes_to_db(addressbook,connection):
+def write_allowed_attributes_to_db(ab,connection):
     """
     """
 
-    for attrname,description in addressbook.allowed_attrs_dict().items():
+    for attrname,description in ab.allowed_attrs_dict().items():
 
         query = u"""INSERT INTO table (attrname, desc) VALUES (?,?)"""
         query = query.replace('table',allowed_table,)
@@ -94,11 +98,14 @@ def write_allowed_attributes_to_db(addressbook,connection):
 
     connection.commit()
 
-def write_contacts_to_db(addressbook,connection):
+
+def write_contacts_to_db(ab,connection):
     """
+    Write the table of contacts, with each contact we also write
+    its properties.
     """
 
-    for contact in addressbook:
+    for contact in ab:
         # Use " to circumfer the apostrophe problem.
         query = u"""INSERT INTO table (fname, sname) VALUES (?,?)"""
         query = query.replace('table',contacts_table)
@@ -119,31 +126,38 @@ def write_contacts_to_db(addressbook,connection):
         # to link the attributes to the proper contact.
     connection.commit()
 
+
 def write_attrs_to_db(contact,cId,connection):
     """
+    Write all the attributes of the contact to the attributes table.
     """
     for attr in contact.get_attrs():
 
-        value = getattr(contact,attr)
+        if attr in ['fname','sname']:
+            continue
+        else:
+            value = getattr(contact,attr)
 
-        # Use " to circumfer the apostrophe problem.
-        query =  u"""INSERT INTO table (contact, attr, value) VALUES (?,?,?)"""
-        query = query.replace('table',attrs_table)
-        params = (cId, attr, value)
-        do_transaction(connection ,query, params)
+            # Use " to circumfer the apostrophe problem.
+            query =  u"""INSERT INTO table (contact, attr, value) VALUES (?,?,?)"""
+            query = query.replace('table',attrs_table)
+            params = (cId, attr, value)
+            do_transaction(connection ,query, params)
 
     connection.commit()
 
-def save_addressbook_to_db(addressbook,dbfilename):
+def save_addressbook_to_db(ab,dbfilename):
     """
     """
+    if not isinstance(ab,addressbook.Addressbook):
+        raise(TypeError("Type of %s is not the required instance of an Addressbook"%ab))
     connection = sqlite3.connect(dbfilename)
 
     initialize_addressbook_db_schema(connection)
 
-    write_allowed_attributes_to_db(addressbook,connection)
+    write_allowed_attributes_to_db(ab,connection)
 
-    write_contacts_to_db(addressbook,connection)
+    write_contacts_to_db(ab,connection)
 
 def read_db_allowed_attrs(connection):
     """
@@ -159,7 +173,13 @@ def read_db_allowed_attrs(connection):
 
 def read_db_contact_attributes(connection,cId ,contact):
     """
+    Read the Contact's attributes and write them to the database connection.
     """
+    if not isinstance(contact,addressbook.Contact):
+        raise(TypeError("Type of %s is not the required instance of an Contact"%contact))
+
+    # Since we skip explicitly over fname & sname, the EXCEPT is not required
+    # anymore, but we'll keep it here for demonstrational purposes.
     query  = u"""SELECT attr,value FROM table WHERE contact = ? """
     query += u""" EXCEPT SELECT attr,value FROM table """
     query += u""" WHERE attr='fname' OR attr='sname' """
@@ -174,7 +194,7 @@ def read_db_contact_attributes(connection,cId ,contact):
     for attr,value in c_attrs:
         contact.add_attr(attr,value)
 
-def read_db_contacts(connection, abook):
+def read_db_contacts(connection, ab):
     """
     """
     query = u"""SELECT * FROM table """
@@ -187,11 +207,11 @@ def read_db_contacts(connection, abook):
         contact = addressbook.Contact(fname, sname)
         read_db_contact_attributes(connection,cId,contact)
 
-        abook.add_contact(contact)
+        ab.add_contact(contact)
 
 def load_addressbook_from_db(dbfilename, name  = None):
 
-    abook = addressbook.Addressbook() if name is None else addressbook.Addressbook(name = name)
+    ab = addressbook.Addressbook() if name is None else addressbook.Addressbook(name = name)
 
     connection = sqlite3.connect(dbfilename)
     # First read the allowed attributes
@@ -201,10 +221,10 @@ def load_addressbook_from_db(dbfilename, name  = None):
     # unique database Id can stay out of `python space'.
     read_db_allowed_attrs(connection)
 
-    read_db_contacts(connection, abook)
+    read_db_contacts(connection, ab)
 
 
-    return abook
+    return ab
 
 
 if __name__ == "__main__":

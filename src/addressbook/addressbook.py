@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# "object" is een caompatibility dingetje met Python  2
+# "object" is een compatibility dingetje met Python  2
 import sys
 import os
 import logging
@@ -51,6 +51,8 @@ class Addressbook(object):
         <class Addressbook "My Addressbook", containing 0 contacts>
         >>>
         """
+        logging.config.fileConfig(logging_configfile)
+
         if Addressbook.config_read is False:
             self.read_config()
             self.set_config()
@@ -459,6 +461,7 @@ class Contact(object):
             sname = Doe
 
         """
+        logging.config.fileConfig(logging_configfile)
 
         self.fname=fname
         self.sname=sname
@@ -590,19 +593,16 @@ def main (args):
     """This is an entry point to run some tests on this module"""
     import doctest
 
-    configfile = "%s/logging.ini"%os.path.dirname(__file__)
-    logging.config.fileConfig(configfile,disable_existing_loggers=True)
+    logging_configfile = "%s/addressbook-logging.ini"%os.path.dirname(__file__)
+    logging.config.fileConfig(logging_configfile,disable_existing_loggers=True)
 
-    #logging.basicConfig(
-    #        level = logging.DEBUG
-    #        )
-    log = logging.getLogger(__name__)
+    log = logging.getLogger('root')
     log.setLevel(logging.DEBUG)
-    console = logging.StreamHandler(stream=sys.stdout)
-    console.setLevel(logging.DEBUG)
-    log.addHandler(console)
+    #console = logging.StreamHandler(stream=sys.stdout)
+    #console.setLevel(logging.DEBUG)
+    #log.addHandler(console)
 
-    logging.info("Loading testmod")
+    log.info("Loading testmod")
     # Ik vermoed dat doctest de logging messages niet doorkrijgt
     doctest.report =True
     doctest.testmod()
@@ -610,6 +610,5 @@ def main (args):
     return 0
 
 if __name__ == '__main__':
-    initialize_logging()
     sys.exit(main(sys.argv))
 

@@ -13,9 +13,13 @@ ab += addressbook.Contact('Jane', 'Doe')
 ab.del_contact('Jane', 'Doe')
 
 #print(ab)
+logging.basicConfig(
+        level = logging.WARNING)
 
-book = addressbook.load_addressbook_from_db("Data/addressboek.db")
 
-print(book)
+dbase = "Data/addressboek.db"
+book = addressbook.load_addressbook_from_db(dbase)
+
+#print(book)
 
 

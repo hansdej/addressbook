@@ -3,7 +3,7 @@ import pytest
 
 def test_add_Contact_to_Addressboek():
     addressbk = addressbook.Addressbook()
-    contact = addressbook.Contact("John", "Doe")
+    contact = addressbook.Contact("John", "Doe",email = "john@doe.org")
     prelength = len(addressbk)
     addressbk.add_contact(contact)
     postlength = len(addressbk)
