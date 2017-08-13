@@ -1,7 +1,5 @@
 import addressbook
-import pytest
 import sqlite3
-from time import sleep
 from os.path import isfile, getsize
 
 def isSQLite3(filename):
