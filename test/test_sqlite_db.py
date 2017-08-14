@@ -15,6 +15,9 @@ def isSQLite3(filename):
     return header[:16] == b'SQLite format 3\x00'
 
 def test_create_database(tmpdir):
+    """
+    Test the creation of a plain database.
+    """
 
     dbfile = "%s/test.db"%tmpdir
     # Before we can test if it is a proper sqlite file, we set it up first.
@@ -44,7 +47,6 @@ def test_create_table_in_db(tmpdir):
     # And finally test if the table is in the database indeed.
 
     assert testTableName in tables
-
 
 def test_create_record_table_in_db(tmpdir):
     dbfile = "%s/test.db"%tmpdir
