@@ -57,7 +57,8 @@ def initialize_addressbook_db_schema(connection):
 
 def do_transaction(connection,query,params):
     """
-    Execute a transaction and show its code (for debugging)
+    A wrapper around the execution of a single transaction.
+    Used to show the code of the transaction (for debugging).
     """
     dblog.info('EXECUTING TO DB:\n\t"%s",%s'%(query,params))
 
@@ -72,7 +73,11 @@ def do_transaction(connection,query,params):
 
 
 def do_transactionscript(connection, queries):
-
+    """
+    A wrapper: for the execution of multiple queries that
+    are scripted into one transaction.
+    Used to display the query codes (for debugging).
+    """
     dblog.info('SCRIPTING TO DB:\n\t"%s"'%queries)
 
     cursor = connection.cursor()
@@ -196,6 +201,7 @@ def read_db_contact_attributes(connection,cId ,contact):
 
 def read_db_contacts(connection, ab):
     """
+    Read the contacts and copy them to the Addressbook
     """
     query = u"""SELECT * FROM table """
     query = query.replace('table',contacts_table)

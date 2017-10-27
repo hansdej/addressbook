@@ -40,6 +40,7 @@ class Addressbook(object):
     An address object.
     """
     default_name = "My Addressbook"
+    # A semaphore to indicate whether the config has been read al least once already.
     config_read = False
     def __init__(self, name=None):
         """
@@ -374,6 +375,7 @@ class Addressbook(object):
     @classmethod
     def set_config(cls, config=None):
         """
+
         """
         if config is None:
             gen_config  = cls.configuration["Addressbook"]
