@@ -8,15 +8,35 @@ import os
 import sqlalchemy as alch
 from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy.orm as orm
+from sqlalchemy.orm import * # Less hassle with raised errors
+
+'''
+This ORM works slightly different from the first addressbook, this is done
+for convenience.
+* The addressbook class is not implemented explicitly: it will be the instance
+    that is indicated bij the database uri.
+* The allowed attributes table is no longer an attribute dict of the Contact
+    class, but tied to the addressbook entity, actually it feels as if this
+    helps to keep the addressbook consistenti more intrinsically: this way,
+    this "restrictment" information is stored together with the data and no
+    longer also in the code (which is a source of possible screw-ups.)
+
+'''
 
 
-logging_configfile = "%s/addressbook-logging.ini"%os.path.dirname(__file__)
+logging_configfile = "%s/logging/orm.ini"%os.path.dirname(__file__)
 logging.config.fileConfig(logging_configfile,disable_existing_loggers=True)
 
 ormlog = logging.getLogger('ormlogger')
 
 Base = declarative_base()
+
 _allowed_attributes ={
+
+    '''
+    A helper that enables a quick first fill list for a new addressbook.
+    '''
+
        'Id'   :"Id number",
        'fname':"First name",
        'sname':"Family name",
@@ -45,6 +65,12 @@ class Contact(Base):
     with the primary keys from both "sides" stored as mapping, foreign keys and
     the attribute value.
 
+    >>> import addressbook.orm as orm
+    >>> orm.createdb("sqlite://")
+    >>> ab_sess=orm.createdbsession("sqlite://")
+    >>> c = orm.Contact("John", "Doe")
+    >>> c.add_to_addressbook(ab_sess)
+
     '''
     __tablename__ = 'contacts'
     # These are class attributes: The bookkeeping is done in the internals of
@@ -59,33 +85,51 @@ class Contact(Base):
                     cascade='delete')
     session=None
 
-    def __init__(self,forename,surname):
-        self.fname=forename
-        self.sname=surname
+    def __init__(self, fname,sname, session=None):
+        self.fname=fname
+        self.sname=sname
+        self.session = session
 
     def __repr__(self):
         return '<class Contact: \"%s, %s\" >'%( self.sname, self.fname )
 
     def add_to_addressbook(self,DBsession):
+        # The addressbook is db_uri used as an equivalent.
         self.session=DBsession
 
+        # Issue a warning if we already have such a contact in the database.
         searchIt = DBsession.query(Contact).filter_by(fname=self.fname,sname=self.sname).first()
-
-        if searchIt is None:
-            ormlog.info("Added contact to database")
-            DBsession.add(self)
-        else:
+        if searchIt is not None:
             ormlog.warning("A Contact %s %s is already the database"%(self.fname,self.sname))
-            if self.allow_duplicate == True:
-                DBsession.add(self)
-                ormlog.warning("Adding it, since we allow duplicates")
-            else:    
-                ormlog.warning("Not adding it, since we do not allow duplicates")
-        DBsession.commit()
+
+        try:
+            DBsession.add(self)
+            DBsession.commit()
+            ormlog.info("Contact %s %s successfully added to SQL"%(
+                                self.fname, self.sname))
+        except Exception as e:
+            DBsession.rollback()
+            DBsession.flush()
+            message = "While trying to add Contact %s %s to SQL "%(
+                                self.fname, self.sname)
+            message += "the  exception \"%s\"occured."%e
+            ormlog.error(message)
+            # How can I add the raises exception to the messag?
 
     def add_attribute(self,attr_name,attr_val):
-        pass
 
+        # kijk of het attribuut in de allowed attributes staat.
+        if self.session is None:
+            raise Exception("No session")
+
+        allowed_attr = session.query(AllowedAttribute).filter_by(
+                                        attribute_name=attr_name).first()
+        if allowed_attr is None:
+            ormlog.warning("'%s' is not an allowed attribute."%attr_name)
+        else:
+            attr=Attribute( value = attr_val,
+                            allowed_attribute = allowed_attr,
+                            contact=self)
 
 class AllowedAttribute(Base):
     '''
@@ -102,8 +146,6 @@ class AllowedAttribute(Base):
         # Should contain a check wheter the property is already added.
         self.attribute_name=name
         self.attribute_desc=desc
-
-
 
 class Attribute(Base):
     __tablename__ = 'attributes'
