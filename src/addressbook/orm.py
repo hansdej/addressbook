@@ -30,13 +30,8 @@ logging.config.fileConfig(logging_configfile,disable_existing_loggers=True)
 ormlog = logging.getLogger('ormlogger')
 
 Base = declarative_base()
-
+# For testing and initialisation purposes.
 _allowed_attributes ={
-
-    '''
-    A helper that enables a quick first fill list for a new addressbook.
-    '''
-
        'Id'   :"Id number",
        'fname':"First name",
        'sname':"Family name",
@@ -53,6 +48,87 @@ _allowed_attributes ={
        'company': 'Affiliated company',
        'birthday': 'Birthday',
 }
+class Addressbook(Base):
+    __tablename__ = 'addressbooks'
+    default_name = "My Addressbook"
+    config_read = False
+    max_name_len =30
+    session = None
+
+    id      = alch.Column( alch.Integer, primary_key=True, autoincrement=True)
+    name    = alch.Column( alch.String(max_name_len))
+    contacts= orm.relationship('AddressbookEntry',back_populates='addressbook')
+    def __init__(self,name=None):
+        '''
+        Initialise the database linked addressbook.
+        '''
+        max_name_len = Addressbook.max_name_len
+        if name is None:
+            name = Addressbook.default_name
+        elif len(name) > max_name_len:
+            name = name[:max_name_len]
+            message = "Addressbook's maximum length of %d "%max_name_len
+            message += "characters exceeded, truncated to \"%s\"."%name
+            logging.warning(message)
+
+        self.name = name
+
+    def __add__(self,added):
+        if isinstance(added, Contact):
+            contact = added
+
+            if Addressbook.session is None:
+                # the session needs to be set, we take the Contacts as guiding.
+                Addressbook.session = contact.session
+
+            session=contact.session    
+            newentry = AddressbookEntry(addressbook=self, contact=contact)
+            session.add(newentry)
+            self.contacts.append(newentry)
+            session.commit()
+
+            message = "Added %s %s to "%(contact.fname,contact.sname)
+            message +="to \"%s\""%self.name
+            ormlog.info(message)
+        elif isinstance(added, Addressbook):
+            num = 0
+            for contact in added:
+                self + contact.contact
+                print(contact.contact)
+                num +=1
+            message = "Added %d contacts from %s "%(num,added.name)    
+            message += " to %s"%self.name
+            ormlog.info(message)
+
+    def add_contact(self,contact):
+        self+contact
+
+    def __len__(self):
+        return len(self.contacts)
+
+    def __repr__(self):
+        message  = "<class Addressbook \"%s\","%self.name
+        message += " containing %d Contacts>"%len(self)
+        return message
+
+    def __iter__(self):
+        '''
+        Iterate over all contacts in the addressbook.
+        '''
+        return iter(self.contacts)
+
+class AddressbookEntry(Base):
+    __tablename__ = 'ab_entries'
+    '''
+    The relational table that links multiple contacts to multiple addressbooks.
+    '''
+    id              = alch.Column( alch.Integer, primary_key=True, autoincrement=True)
+
+    contact_id      = alch.Column( alch.Integer, alch.ForeignKey('contacts.id'))
+    contact         = orm.relationship( "Contact", back_populates="addressbooks")
+
+    addressbook_id  = alch.Column( alch.Integer, alch.ForeignKey('addressbooks.id'))
+    addressbook     = orm.relationship( "Addressbook", back_populates="contacts")
 
 class Contact(Base):
     '''
@@ -66,10 +142,16 @@ class Contact(Base):
     the attribute value.
 
     >>> import addressbook.orm as orm
-    >>> orm.createdb("sqlite://")
-    >>> ab_sess=orm.createdbsession("sqlite://")
+    >>> orm.createdb("sqlite:///ab.db")
+    >>> ab_sess=orm.createdbsession("sqlite:///ab.db")
     >>> c = orm.Contact("John", "Doe")
     >>> c.add_to_addressbook(ab_sess)
+    >>> ab_sess.close()
+    >>> import os
+    >>> os.rename('ab.db', 'ab-orm.db')
+    >>> db_sess=orm.createdbsession("sqlite:///ab-orm.db")
+    >>> db_sess.query(orm.Contact).filter_by(fname='John',sname='Doe').first()
+    <class Contact: "Doe, John" >
 
     '''
     __tablename__ = 'contacts'
@@ -80,56 +162,97 @@ class Contact(Base):
     id    = alch.Column( alch.Integer, primary_key=True, autoincrement=True )
     fname = alch.Column( alch.String(30))
     sname = alch.Column( alch.String(30))
-    allow_duplicates = True
-    attributes = orm.relationship('Attribute', back_populates ='contact',
+
+    attributes = orm.relationship('Attribute',
+                    back_populates ='contact',
                     cascade='delete')
+
+    addressbooks = orm.relationship('AddressbookEntry',
+                     back_populates ='contact')
+    # Hence all Contacts will be added to the same session that is assigned
+    # to this class property the same addressbook.
     session=None
 
-    def __init__(self, fname,sname, session=None):
+    def __init__(self,session, fname,sname):
         self.fname=fname
         self.sname=sname
         self.session = session
+        session.add(self)
 
     def __repr__(self):
         return '<class Contact: \"%s, %s\" >'%( self.sname, self.fname )
 
-    def add_to_addressbook(self,DBsession):
-        # The addressbook is db_uri used as an equivalent.
-        self.session=DBsession
-
-        # Issue a warning if we already have such a contact in the database.
-        searchIt = DBsession.query(Contact).filter_by(fname=self.fname,sname=self.sname).first()
-        if searchIt is not None:
-            ormlog.warning("A Contact %s %s is already the database"%(self.fname,self.sname))
-
-        try:
-            DBsession.add(self)
-            DBsession.commit()
-            ormlog.info("Contact %s %s successfully added to SQL"%(
-                                self.fname, self.sname))
-        except Exception as e:
-            DBsession.rollback()
-            DBsession.flush()
-            message = "While trying to add Contact %s %s to SQL "%(
-                                self.fname, self.sname)
-            message += "the  exception \"%s\"occured."%e
-            ormlog.error(message)
-            # How can I add the raises exception to the messag?
+#    def add_to_addressbook(self,DBsession):
+#        # The addressbook is db_uri used as an equivalent.
+#        self.session=DBsession
+##
+#        # Issue a warning if we already have such a contact in the database.
+#        searchIt = DBsession.query(Contact).filter_by(
+#                            fname=self.fname, sname=self.sname).first()
+#
+#        if searchIt is not None:
+#            ormlog.warning("A Contact %s %s is already the database"%(
+#                                                self.fname,self.sname))
+#        try:
+#            DBsession.add(self)
+#            DBsession.commit()
+#            ormlog.info("Contact %s %s successfully added to SQL"%(
+#                                            self.fname, self.sname))
+#        except Exception as e:
+#            DBsession.rollback()
+##            DBsession.flush()
+#            message =  "While trying to add Contact %s %s "%( self.fname, self.sname)
+#            message += "to the SQL addressbook, the  exception \"%s\"occured."%e
+#            ormlog.error(message)
 
     def add_attribute(self,attr_name,attr_val):
 
-        # kijk of het attribuut in de allowed attributes staat.
+        # Verify if a session is connected yet.
         if self.session is None:
-            raise Exception("No session")
+            message = "Trying to add %s, %s to %s"%(self,attr_name,attr_val)
+            message += "without a session."
+            ormlog.error(message)
+            raise Exception("No session connected yet")
 
+        session = self.session
+        
+        # Query the allowed attributes for the desired attribute as a test of
+        # its presence.
         allowed_attr = session.query(AllowedAttribute).filter_by(
                                         attribute_name=attr_name).first()
         if allowed_attr is None:
             ormlog.warning("'%s' is not an allowed attribute."%attr_name)
         else:
-            attr=Attribute( value = attr_val,
-                            allowed_attribute = allowed_attr,
-                            contact=self)
+            attr = Attribute(contact=self,
+                        allowed_attribute= allowed_attr,
+                        value=attr_val )
+            session.add(attr)
+            self.attributes.append(attr)
+
+    def add_allowed_attr(self,attr_name,attr_description):
+        '''
+        Add an allowed attribute via the Contact instance.
+        '''
+        DBsession = self.session
+        if DBsession == None:
+            message =  "Trying to add %s to the allowed atributes"%attr_name
+            message += "With no open session."
+            ormlog.error(message)
+            raise Exception("No session connected yet")
+        else:
+            try:
+                DBsession.add(AllowedAttribute(attr_name,attr_description))
+                DBsession.commit()
+                message = "Allowed Attribute %s "%( attr_name)
+                message += "successfully added to SQL addressbook."
+                ormlog.info(message)
+            except Exception as e:
+                DBsession.rollback()
+                DBsession.flush()
+                message =  "While trying to add the allowed attribute "
+                message += attr_name
+                message += " to the SQL addressbook, the  exception \"%s\"occured."%e
+                ormlog.error(message)
 
 class AllowedAttribute(Base):
     '''
@@ -165,7 +288,9 @@ class Attribute(Base):
 
     allowed_attribute_id = alch.Column( alch.Integer, alch.ForeignKey('allowed_attributes.id'))
     allowed_attribute    = orm.relationship( "AllowedAttribute", back_populates="attributes")
-    #def __init__ (self,attribute,value, **kwargs):
+
+    #def __init__ (self,attribute,value):
+    #    # Attributes are initialised only for contacts.
     #    self.allowed_attribute = attribute
     #    self.value = value
 
