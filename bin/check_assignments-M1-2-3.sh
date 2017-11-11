@@ -49,7 +49,7 @@ echo '
 COMMAND='../test/test_with_unittest.py'
 echo "Executing: $COMMAND"
 $COMMAND
-    
+
 echo "===================================="
 
 echo '
@@ -59,9 +59,9 @@ echo '
 cd ../
 COMMAND="python3 -m pytest -v "
 echo "Executing: $COMMAND"
-$COMMAND 
+$COMMAND
 cd -
-    
+
 echo "===================================="
 
 echo "Continuing to Module 3:"

@@ -58,6 +58,7 @@ class Addressbook(Base):
     id      = alch.Column( alch.Integer, primary_key=True, autoincrement=True)
     name    = alch.Column( alch.String(max_name_len))
     contacts= orm.relationship('AddressbookEntry',back_populates='addressbook')
+
     def __init__(self,name=None):
         '''
         Initialise the database linked addressbook.
@@ -78,15 +79,21 @@ class Addressbook(Base):
             contact = added
 
             if Addressbook.session is None:
-                # the session needs to be set, we take the Contacts as guiding.
+                # the session needs to be set, we have assigned the Contact class
+                # as the class that contains the pointer to the session since the
+                # Contacts are the most essential entities in an addressbook.
                 Addressbook.session = contact.session
+            session=contact.session
 
-            session=contact.session    
+
+            # Next: create a new entry, add it to the database session whereupon it
+            # can be added to the contact that is already in the session.
+            # Whether the commit is necessary can be a point of discussion.
             newentry = AddressbookEntry(addressbook=self, contact=contact)
             session.add(newentry)
             self.contacts.append(newentry)
-            session.commit()
 
+            # The logging message:
             message = "Added %s %s to "%(contact.fname,contact.sname)
             message +="to \"%s\""%self.name
             ormlog.info(message)
@@ -96,12 +103,24 @@ class Addressbook(Base):
                 self + contact.contact
                 print(contact.contact)
                 num +=1
-            message = "Added %d contacts from %s "%(num,added.name)    
+            message = "Added %d contacts from %s "%(num,added.name)
             message += " to %s"%self.name
             ormlog.info(message)
 
     def add_contact(self,contact):
         self+contact
+
+    def find_contact(self,fname,sname):
+        '''
+        Find the contact with the parsed fname and sname.
+        '''
+        pass
+
+    def remove_contact(self,fname,sname):
+        '''
+        Unlink the contact from this addressbook.
+        '''
+        pass
 
     def __len__(self):
         return len(self.contacts)
@@ -177,35 +196,30 @@ class Contact(Base):
         self.fname=fname
         self.sname=sname
         self.session = session
-        session.add(self)
+        # Issue a warning if we already have such a contact in the database.
+        searchIt = session.query(Contact).filter_by(
+                            fname=self.fname, sname=self.sname).first()
+        if searchIt is not None:
+            message = "A Contact %s %s already "%(self.fname,self.sname)
+            message += "exists in the database, but adding it anyway."
+            ormlog.warning(message)
+        # try to add the Contact and roll back if this fails.
+        try:
+            session.add(self)
+            ormlog.info("Contact %s %s successfully added to SQL"%(
+                                            self.fname, self.sname))
+        except Exception as e:
+            session.rollback()
+            session.flush()
+            message =  "While trying to add Contact %s %s "%( self.fname, self.sname)
+            message += "to the SQL addressbook, the  exception \"%s\"occured."%e
+            ormlog.error(message)
 
     def __repr__(self):
         return '<class Contact: \"%s, %s\" >'%( self.sname, self.fname )
 
-#    def add_to_addressbook(self,DBsession):
-#        # The addressbook is db_uri used as an equivalent.
-#        self.session=DBsession
-##
-#        # Issue a warning if we already have such a contact in the database.
-#        searchIt = DBsession.query(Contact).filter_by(
-#                            fname=self.fname, sname=self.sname).first()
-#
-#        if searchIt is not None:
-#            ormlog.warning("A Contact %s %s is already the database"%(
-#                                                self.fname,self.sname))
-#        try:
-#            DBsession.add(self)
-#            DBsession.commit()
-#            ormlog.info("Contact %s %s successfully added to SQL"%(
-#                                            self.fname, self.sname))
-#        except Exception as e:
-#            DBsession.rollback()
-##            DBsession.flush()
-#            message =  "While trying to add Contact %s %s "%( self.fname, self.sname)
-#            message += "to the SQL addressbook, the  exception \"%s\"occured."%e
-#            ormlog.error(message)
 
-    def add_attribute(self,attr_name,attr_val):
+    def add_attr(self,attr_name,attr_val):
 
         # Verify if a session is connected yet.
         if self.session is None:
@@ -215,7 +229,6 @@ class Contact(Base):
             raise Exception("No session connected yet")
 
         session = self.session
-        
         # Query the allowed attributes for the desired attribute as a test of
         # its presence.
         allowed_attr = session.query(AllowedAttribute).filter_by(
@@ -228,6 +241,14 @@ class Contact(Base):
                         value=attr_val )
             session.add(attr)
             self.attributes.append(attr)
+    def find_attr(self, attr_name):
+        pass
+
+    def remove_attr(self,attr_name):
+        pass
+
+    def change_attr(self,attr_name,attr_desc):
+        pass
 
     def add_allowed_attr(self,attr_name,attr_description):
         '''
@@ -242,7 +263,6 @@ class Contact(Base):
         else:
             try:
                 DBsession.add(AllowedAttribute(attr_name,attr_description))
-                DBsession.commit()
                 message = "Allowed Attribute %s "%( attr_name)
                 message += "successfully added to SQL addressbook."
                 ormlog.info(message)
@@ -253,6 +273,11 @@ class Contact(Base):
                 message += attr_name
                 message += " to the SQL addressbook, the  exception \"%s\"occured."%e
                 ormlog.error(message)
+    def remove_allowed_attr(self,attr_name):
+        pass
+
+    def change_allowed_attr(self,attr_name,new_attr_name=None,attr_description=None):
+        pass
 
 class AllowedAttribute(Base):
     '''
@@ -269,6 +294,12 @@ class AllowedAttribute(Base):
         # Should contain a check wheter the property is already added.
         self.attribute_name=name
         self.attribute_desc=desc
+    def __repr__(self):
+        return "<class AllowedAttribute: \"%s\"\n\"%s\""%(
+                self.attribute_name,self.attribute_desc)
+
+    def destroy(self):
+        pass
 
 class Attribute(Base):
     __tablename__ = 'attributes'
