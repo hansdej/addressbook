@@ -53,7 +53,8 @@ class Addressbook(Base):
 
     id      = alch.Column( alch.Integer, primary_key=True, autoincrement=True)
     name    = alch.Column( alch.String(max_name_len))
-    contacts= orm.relationship('AddressbookEntry',back_populates='addressbook')
+    contacts= orm.relationship('AddressbookEntry',
+            back_populates='addressbook')
 
     def __init__(self,name=None):
         '''
@@ -106,17 +107,37 @@ class Addressbook(Base):
             message +="to \"%s\""%self.name
             ormlog.info(message)
 
-    def find_contact(self,fname,sname):
+    def find_contacts(self,fname,sname):
         '''
         Find the contact with the parsed fname and sname.
         '''
-        pass
+        contacts = self.session.query(Contact).join(
+                "addressbooks","addressbook").filter(
+                        Addressbook.id==self.id,
+                        Contact.fname == fname,
+                        Contact.sname == sname).all()
+        return contacts
 
-    def remove_contact(self,fname,sname):
+    def unlink_contacts(self,fname,sname):
         '''
         Unlink the contact from this addressbook.
         '''
-        pass
+        contacts = self.find_contacts(fname,sname)
+        if len(contacts) <1:
+                message = "No Contact %s %s to unlink "%(fname,sname)
+                message += "from addressbook \"%s\""%self.name
+                ormlog.warning(message)
+        else:
+            for c in contacts:
+                contact_links = self.session.query(AddressbookEntry).filter_by(
+                        addressbook_id=self.id,
+                        contact_id=c.id).all()
+                for link in contact_links:
+                    message = "Unlinking %s %s "%(c.fname,c.sname)
+                    message += "(link.id=%d) "%link.id
+                    message += "from addressbook \"%s\""%self.name
+                    ormlog.info(message)
+                    self.session.delete(link)
 
     def __len__(self):
         return len(self.contacts)
