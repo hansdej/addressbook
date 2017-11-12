@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 import addressbook.orm as ab_orm
-import pytest
 import unittest
 
 class Test_SQLAlchemy_Addressbook(unittest.TestCase):
@@ -9,6 +8,8 @@ class Test_SQLAlchemy_Addressbook(unittest.TestCase):
         ab_orm.createdb(db_uri)
         DBsess = ab_orm.createdbsession(db_uri)
         ab = ab_orm.Addressbook(name="My book")
+        DBsess.add(ab)
+        DBsess.commit()
         self.assertIsInstance(ab, ab_orm.Addressbook)
 
 
