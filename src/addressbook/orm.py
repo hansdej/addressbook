@@ -249,7 +249,7 @@ class Contact(Base):
         # Query the allowed attributes for the desired attribute as a test of
         # its presence.
         allowed_attr = session.query(AllowedAttribute).filter_by(
-                                        attribute_name=attr_name).first()
+                                        attr_name=attr_name).first()
         if allowed_attr is None:
             ormlog.warning("'%s' is not an allowed attribute."%attr_name)
         else:
@@ -259,6 +259,7 @@ class Contact(Base):
             session.add(attr)
             self.attributes.append(attr)
     def find_attr(self, attr_name):
+        #etcetera etcetera
         pass
 
     def remove_attr(self,attr_name):
@@ -270,30 +271,26 @@ class Contact(Base):
     def add_allowed_attr(self,attr_name,attr_description):
         '''
         Add an allowed attribute via the Contact instance.
+        This is the old behaviour.
         '''
-        DBsession = self.session
-        if DBsession == None:
-            message =  "Trying to add %s to the allowed atributes"%attr_name
-            message += "With no open session."
-            ormlog.error(message)
-            raise Exception("No session connected yet")
-        else:
-            try:
-                DBsession.add(AllowedAttribute(attr_name,attr_description))
-                message = "Allowed Attribute %s "%( attr_name)
-                message += "successfully added to SQL addressbook."
-                ormlog.info(message)
-            except Exception as e:
-                DBsession.rollback()
-                DBsession.flush()
-                message =  "While trying to add the allowed attribute "
-                message += attr_name
-                message += " to the SQL addressbook, the  exception \"%s\"occured."%e
-                ormlog.error(message)
+        AllowedAttribute(self.session,attr_name,attr_description)
+
     def remove_allowed_attr(self,attr_name):
-        pass
+        s = self.session
+        remove = s.query(AllowedAttribute).filter_by(attr_name=attr_name).first()
+        if remove is None:
+            message = "Allowed attribute %s was not found"%attr_name
+            ormlog.warning(message)
+        else:
+           message = "Removing allowed attribute %s."%remove.attr_name
+           ormlog.info(message)
+           s.delete(remove)
 
     def change_allowed_attr(self,attr_name,new_attr_name=None,attr_description=None):
+        """
+        Change the name of the attribute or its description without changing the id
+        that connects it to (possibly) a lot of contact attributes can be usefull.
+        """
         pass
 
 class AllowedAttribute(Base):
@@ -303,20 +300,38 @@ class AllowedAttribute(Base):
     '''
     __tablename__ = 'allowed_attributes'
     id             = alch.Column( alch.Integer, primary_key=True, autoincrement=True)
-    attribute_name = alch.Column( alch.String(30)   )
-    attribute_desc = alch.Column( alch.String(255)  )
+    attr_name = alch.Column( alch.String(30)   )
+    attr_desc = alch.Column( alch.String(255)  )
     attributes     = orm.relationship('Attribute', back_populates = 'allowed_attribute',
                                 cascade='delete')
-    def __init__(self,name,desc):
+    def __init__(self,session,attr_name,attr_desc):
+        """
+        Add an allowed attribute to the database.
+        """
         # Should contain a check wheter the property is already added.
-        self.attribute_name=name
-        self.attribute_desc=desc
-    def __repr__(self):
-        return "<class AllowedAttribute: \"%s\"\n\"%s\""%(
-                self.attribute_name,self.attribute_desc)
+        self.attr_name=attr_name
+        self.attr_desc=attr_desc
+        if session == None:
+            message =  "Trying to add %s to the allowed atributes"%attr_name
+            message += "With no open session."
+            ormlog.error(message)
+            raise Exception("No session connected yet")
 
-    def destroy(self):
-        pass
+        try:
+            session.add(self)
+            message = "Allowed Attribute [%s] "%( attr_name)
+            message += "successfully added to SQL addressbook."
+            ormlog.info(message)
+        except Exception as e:
+            DBsession.rollback()
+            DBsession.flush()
+            message =  "While trying to add the allowed attribute "
+            message += attr_name
+            message += " to the SQL addressbook, the  exception \"%s\"occured."%e
+            ormlog.error(message)
+    def __repr__(self):
+        return "<class AllowedAttribute: [%s]:\"%s\">"%(
+                self.attr_name,self.attr_desc)
 
 class Attribute(Base):
     __tablename__ = 'attributes'
@@ -338,7 +353,7 @@ class Attribute(Base):
     allowed_attribute    = orm.relationship( "AllowedAttribute", back_populates="attributes")
 
     #def __init__ (self,attribute,value):
-    #    # Attributes are initialised only for contacts.
+        # Attributes are initialised only for contacts.
     #    self.allowed_attribute = attribute
     #    self.value = value
 
@@ -384,7 +399,7 @@ def main(args):
         c = Contact(session,fname='John',sname="Doe")
         session.commit()
     # Same story for the AllowedAttribute.
-    aa = session.query(AllowedAttribute).filter_by(attribute_name='email').first()
+    aa = session.query(AllowedAttribute).filter_by(attr_name='email').first()
     if aa is None:
         # Apparently this is missing, so we add it.
         aa = AllowedAttribute('email','Email Address')
