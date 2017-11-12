@@ -1,8 +1,8 @@
 #from sqlalchemy import Column, Integer, String, Table
 import logging
 import logging.config
-import configparser
-import addressbook
+#import configparser
+#import addressbook
 import os
 
 import sqlalchemy as alch
@@ -20,7 +20,6 @@ for convenience.
     helps to keep the addressbook consistenti more intrinsically: this way,
     this "restrictment" information is stored together with the data and no
     longer also in the code (which is a source of possible screw-ups.)
-
 '''
 
 
@@ -77,14 +76,26 @@ class Addressbook(Base):
     def __add__(self,added):
         if isinstance(added, Contact):
             contact = added
+            self.add_contact(contact)
 
+        elif isinstance(added, Addressbook):
+            num = 0
+            for contact in added:
+                #contact = contactentry.contact
+                self.add_contact(contact)
+                print(contact)
+                num +=1
+            message = "Added %d contacts from %s "%(num,added.name)
+            message += " to %s"%self.name
+            ormlog.info(message)
+
+    def add_contact(self,contact):
             if Addressbook.session is None:
                 # the session needs to be set, we have assigned the Contact class
                 # as the class that contains the pointer to the session since the
                 # Contacts are the most essential entities in an addressbook.
                 Addressbook.session = contact.session
             session=contact.session
-
 
             # Next: create a new entry, add it to the database session whereupon it
             # can be added to the contact that is already in the session.
@@ -97,18 +108,6 @@ class Addressbook(Base):
             message = "Added %s %s to "%(contact.fname,contact.sname)
             message +="to \"%s\""%self.name
             ormlog.info(message)
-        elif isinstance(added, Addressbook):
-            num = 0
-            for contact in added:
-                self + contact.contact
-                print(contact.contact)
-                num +=1
-            message = "Added %d contacts from %s "%(num,added.name)
-            message += " to %s"%self.name
-            ormlog.info(message)
-
-    def add_contact(self,contact):
-        self+contact
 
     def find_contact(self,fname,sname):
         '''
@@ -134,7 +133,7 @@ class Addressbook(Base):
         '''
         Iterate over all contacts in the addressbook.
         '''
-        return iter(self.contacts)
+        return iter([entry.contact for entry in self.contacts])
 
 class AddressbookEntry(Base):
     __tablename__ = 'ab_entries'
@@ -354,7 +353,7 @@ def main(args):
     '''
     # Implicitly the Addressbook object is replaced by the database file
     # Lets stick to this and remember that for real applications.
-    dbFileName='addressbook_alchemy.db'
+    dbFilename='addressbook_alchemy.db'
     dburi='sqlite:///'+dbFilename
     createdb(dburi)
     session=createdbsession(dburi)
@@ -364,8 +363,7 @@ def main(args):
     c =session.query(Contact).filter_by(fname='John',sname="Doe").first()
     if c is None:
         # No contact found: generating it.
-        c = Contact(fname='John',sname="Doe")
-        session.add(c)
+        c = Contact(session,fname='John',sname="Doe")
         session.commit()
     # Same story for the AllowedAttribute.
     aa = session.query(AllowedAttribute).filter_by(attribute_name='email').first()
@@ -374,7 +372,7 @@ def main(args):
         aa = AllowedAttribute('email','Email Address')
         session.add(aa)
         session.commit()
-    # Add a few new attributes to the contact. 
+    # Add a few new attributes to the contact.
     # How to do this?
     # -> verify if it is allowed
     # -> link to the proper allowed contact
