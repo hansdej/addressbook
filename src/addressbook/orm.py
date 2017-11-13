@@ -402,8 +402,7 @@ def main(args):
     aa = session.query(AllowedAttribute).filter_by(attr_name='email').first()
     if aa is None:
         # Apparently this is missing, so we add it.
-        aa = AllowedAttribute('email','Email Address')
-        session.add(aa)
+        AllowedAttribute(session,'email','Email Address')
         session.commit()
     # Add a few new attributes to the contact.
     # How to do this?
