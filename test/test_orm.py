@@ -72,10 +72,7 @@ def test_add_allowed_attribute(tmpdir):
     ab_orm.createdb(db_uri)
     db_sess = ab_orm.createdbsession(db_uri)
     attrList = ab_orm._allowed_attributes
-    # We need a contact to add allowed attributes.
-    # In a new design the addressbook will be another 1-many table,
-    # and this method will an addressbook method.
-    c = ab_orm.Contact(db_sess,"John", "Doe")
+
     for name,desc in attrList.items():
         ab_orm.AllowedAttribute(db_sess,name,desc)
 
