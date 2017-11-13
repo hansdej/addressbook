@@ -9,16 +9,16 @@ import sqlalchemy as alch
 from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy.orm as orm
 from sqlalchemy.orm import * # Less hassle with raised errors
-"""
-This ORM works slightly different from the first addressbook, this is done
-for convenience.
-* The addressbook class is not implemented explicitly: it will be the instance
-    that is indicated bij the database uri.
-* The allowed attributes table is no longer an attribute dict of the Contact
-    class, but tied to the addressbook entity, actually it feels as if this
-    helps to keep the addressbook consistenti more intrinsically: this way,
-    this "restrictment" information is stored together with the data and no
-    longer also in the code (which is a source of possible screw-ups.)"""
+
+# This ORM works slightly different from the first addressbook, this is done
+# for convenience.
+# * The addressbook class is not implemented explicitly: it will be the instance
+#     that is indicated bij the database uri.
+# * The allowed attributes table is no longer an attribute dict of the Contact
+#    class, but tied to the addressbook entity, actually it feels as if this
+#    helps to keep the addressbook consistenti more intrinsically: this way,
+#    this "restrictment" information is stored together with the data and no
+#    longer also in the code (which is a source of possible screw-ups.)
 
 logging_configfile = "%s/logging/orm.ini"%os.path.dirname(__file__)
 logging.config.fileConfig(logging_configfile,disable_existing_loggers=True)
