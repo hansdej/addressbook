@@ -20,7 +20,7 @@ from sqlalchemy.orm import * # Less hassle with raised errors
 #    this "restrictment" information is stored together with the data and no
 #    longer also in the code (which is a source of possible screw-ups.)
 
-logging_configfile = "%s/logging/orm.ini"%os.path.dirname(__file__)
+logging_configfile = "%s/logging-addressbook.ini"%os.path.dirname(__file__)
 logging.config.fileConfig(logging_configfile,disable_existing_loggers=True)
 
 ormlog = logging.getLogger('ormlogger')
@@ -176,19 +176,6 @@ class Contact(Base):
     This table connects to these both tables and acts as/is an "association table"
     with the primary keys from both "sides" stored as mapping, foreign keys and
     the attribute value.
-
-    >>> import addressbook.orm as orm
-    >>> orm.createdb("sqlite:///ab.db")
-    >>> ab_sess=orm.createdbsession("sqlite:///ab.db")
-    >>> c = orm.Contact("John", "Doe")
-    >>> c.add_to_addressbook(ab_sess)
-    >>> ab_sess.close()
-    >>> import os
-    >>> os.rename('ab.db', 'ab-orm.db')
-    >>> db_sess=orm.createdbsession("sqlite:///ab-orm.db")
-    >>> db_sess.query(orm.Contact).filter_by(fname='John',sname='Doe').first()
-    <class Contact: "Doe, John" >
-
     '''
     __tablename__ = 'contacts'
     # These are class attributes: The bookkeeping is done in the internals of

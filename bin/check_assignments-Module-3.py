@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 
 # Show that the initialisation works:
+import sys
 import addressbook
 import logging
+
 
 # Set the logging to be verbose:
 logging.basicConfig(
         level = logging.INFO
         )
+
+consoleHandler = logging.StreamHandler(sys.stdout)
+
 logging.info("""
 Exercise 3.5.1 Created a CSV import module
 """)

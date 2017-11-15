@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 
 # Show that the initialisation works:
+import sys
 import addressbook
 import logging
 
 # Set the logging to be verbose:
 
+#Dirty quickfix to prevent a  shitload of SQL messages while executing this script.
+logging.basicConfig( level = logging.WARNING )
 
-logging.basicConfig(
-        level = logging.WARNING
-        )
+consoleHandler = logging.StreamHandler(sys.stdout)
+
 logging.info("""
 Exercise 4.1.1 Created the addressbook/db.py file which is loaded with
 the rest of the addressbook.
@@ -45,4 +47,3 @@ logging.info("""
     functioning via an extra "join" method and was wondering if this is the proper 
     way indeed.
     """)
-

@@ -65,5 +65,12 @@ cd -
 echo "===================================="
 
 echo "Continuing to Module 3:"
-python3 check_assignments-Module-3.py
+python3 check_assignments-Module-3.py 
+
+echo "Continuing to Module 4:"
+echo "The console loglevel is set to WARNING to prevent a \`shitload\' of SQL messages"
+echo "This can be modified in src/addressbook/logging:"
+echo "The files addressbook.ini and orm.ini"
+
+python3 check_assignments-Module-4.py 
 

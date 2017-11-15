@@ -6,7 +6,7 @@ import logging
 import logging.config
 import configparser
 
-logging_configfile = "%s/logging/addressbook.ini"%os.path.dirname(__file__)
+logging_configfile = "%s/logging-addressbook.ini"%os.path.dirname(__file__)
 logging.config.fileConfig(logging_configfile,disable_existing_loggers=True)
 
 def attributes(thing):
