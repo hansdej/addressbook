@@ -36,5 +36,13 @@ logging.info("""
         %s
         """%boek)
 # Continue with the SQLAlchemy exercise.
-
+logging.info("""
+    Most of the SQLAlchemy exercises are writing code and adding
+    propper logging.
+    The most functional stuff are the three pytest tests.
+    As a "bonus" (or actually something that challenged my curiosity "can I do it?")
+    I implemented a query for a contact  as a method of an Addressbook. Got it 
+    functioning via an extra "join" method and was wondering if this is the proper 
+    way indeed.
+    """)
 
