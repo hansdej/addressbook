@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Module docstring goes here"""
-import sys,os,argparse
+import sys,argparse
 import logging
 import logging.config
 logging.basicConfig(
@@ -18,10 +18,10 @@ __license__ = 'Gpl'
 
 __all__ = [ ]
 
-from addressbook import Contact, Addressbook
+from addressbook import Addressbook
 import addressbook
 from addressbook.convert import *
-from bottle import route, run, template
+from bottle import route, run
 import json
 
 @route('/addressbook/sample/')
@@ -34,13 +34,13 @@ def parse_addressbook_json(addressbk=None):
         csvfile = "Data/FakeNameGenerator.csv"
         ab = addressbook.from_csv(csvfile, name = "My addressboek")
     else:
-        ab = addressbook
+        ab = addressbk
     output = "["
     for record in addressbook.convert.to_structure(ab):
         output += "%s\n"%json.dumps(record,indent=4)
     output += "]"
     output = json.dumps( addressbook.convert.to_structure(ab),indent=4)
-    
+
     return output
 # Wa
 
