@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Module docstring goes here"""
-import sys,argparse
+import sys
 import logging
 import logging.config
 logging.basicConfig(
@@ -18,7 +18,6 @@ __license__ = 'Gpl'
 
 __all__ = [ ]
 
-from addressbook import Addressbook
 import addressbook
 from addressbook.convert import *
 from bottle import route, run
