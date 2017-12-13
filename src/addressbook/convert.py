@@ -46,8 +46,10 @@ def from_csv(csvfilename, name="csv imported"):
             csv_content = csv.reader(csvfile,delimiter=',', quotechar='"')
             for row in csv_content:
                 if skiplines > 0:
+                    # Skip the first indicated number of rows/lines.
                     skiplines = skiplines - 1
                 else:
+                    #skiplines has become 0, continue reading the contacts.
                     attrs = {}
                     for label in csv_config:
                         col = int(csv_config[label])
