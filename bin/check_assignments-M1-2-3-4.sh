@@ -65,12 +65,11 @@ cd -
 echo "===================================="
 
 echo "Continuing to Module 3:"
-python3 check_assignments-Module-3.py 
+python3 check_assignments-Module-3.py
 
 echo "Continuing to Module 4:"
 echo "The console loglevel is set to WARNING to prevent a load of SQL messages"
 echo "These can be found in the files addressbook-db.log and addressbook-orm.log "
-echo "files"
 
-python3 check_assignments-Module-4.py 
+python3 check_assignments-Module-4.py
 

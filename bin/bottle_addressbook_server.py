@@ -35,10 +35,10 @@ def parse_addressbook_json(addressbk=None):
     else:
         ab = addressbk
     output = "["
-    for record in addressbook.convert.to_structure(ab):
+    for record in ab.to_list():
         output += "%s\n"%json.dumps(record,indent=4)
     output += "]"
-    output = json.dumps( addressbook.convert.to_structure(ab),indent=4)
+    output = json.dumps( ab.to_list(),indent=4)
 
     return output
 # Wa

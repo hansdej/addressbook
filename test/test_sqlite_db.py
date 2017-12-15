@@ -1,5 +1,7 @@
+#!/usr/bin/env python3
 import addressbook
 import sqlite3
+import pytest
 from os.path import isfile, getsize
 
 def isSQLite3(filename):
@@ -75,5 +77,6 @@ def test_create_record_table_in_db(tmpdir):
     records = cursor.execute(query).fetchall()
 
     assert (testId,testName) in records
-
+if __name__ == '__main__':
+    pytest.main()
 

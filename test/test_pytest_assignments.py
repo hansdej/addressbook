@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import addressbook
 import pytest
 
@@ -29,3 +30,6 @@ def test_Addressbook_can_be_searched_for_Contact_with_Name():
     foundC = addressbk.find_contact_by_name("Pietje","Puk")
     firstFind = foundC[0]
     assert firstFind == c3
+
+if __name__ == '__main__':
+    pytest.main()

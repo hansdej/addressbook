@@ -5,25 +5,6 @@ import yaml
 import os
 from .addressbook import Addressbook, Contact
 
-def to_structure(thing):
-    """
-    Returns a Contact or an Addressbook as a dict or list of dicts.
-
-    >>> import addressbook
-    >>> c = addressbook.Contact("John", "Doe",email="John@doe.org")
-    >>> l = addressbook.to_structure(c)
-    >>> len(l)
-    3
-
-    """
-    if isinstance(thing,Addressbook):
-        structure = [ to_structure(contact) for contact in thing]
-    elif isinstance(thing,Contact):
-        structure = { attr: getattr(thing,attr) for attr in thing.get_attrs() }
-    else:
-        structure = {"Not an addresbook"}
-    return structure
-
 def from_csv(csvfilename, name="csv imported"):
     """
     Read the contents of a csvfile into an addressbook
@@ -94,7 +75,8 @@ def to_treeFormat(frombook,frmat, filename, **kargs):
     """
     outData = {frombook.name:{}}
     outData[frombook.name]['allowed attributes'] = frombook.allowed_attrs_dict()
-    outData[frombook.name]['Contacts'] = to_structure(frombook)
+
+    outData[frombook.name]['Contacts'] = frombook.to_list()
 
     with open(filename,'w') as outfile:
         if frmat == 'json':

@@ -9,6 +9,7 @@ import configparser
 logging_configfile = "%s/logging-addressbook.ini"%os.path.dirname(__file__)
 logging.config.fileConfig(logging_configfile,disable_existing_loggers=True)
 
+
 def attributes(thing):
     """
     The helper function to get all the regular attributes
@@ -288,6 +289,9 @@ class Addressbook(object):
             thisList += "* %s"%contact.full_print()
         return thisList
 
+    def to_list(self):
+        return [ contact.to_dict() for contact in self ]
+
     def find_contact_by_name(self,search_fname, search_sname):
         """
         Search an addressbook for all contacts with the presented
@@ -482,6 +486,9 @@ class Contact(object):
             text += '\n    %s = %s'%(attribute,getattr(self, attribute))
         return text
 
+    def to_dict(self):
+        return { attr: getattr(self,attr) for attr in self.get_attrs() }
+
 
 
     def copy(self):
@@ -595,7 +602,7 @@ def main (args):
     """This is an entry point to run some tests on this module"""
     import doctest
 
-    logging_configfile = "%s/addressbook-logging.ini"%os.path.dirname(__file__)
+    logging_configfile = "%s/logging-addressbook.ini"%os.path.dirname(__file__)
     logging.config.fileConfig(logging_configfile,disable_existing_loggers=True)
 
     log = logging.getLogger('root')
