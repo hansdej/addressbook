@@ -2,7 +2,7 @@
 import addressbook.orm as ab_orm
 import unittest
 import shutil
-import tempfile 
+import tempfile
 
 class Test_SQLAlchemy_Addressbook(unittest.TestCase):
     def test_new_addressbook_create(self):
