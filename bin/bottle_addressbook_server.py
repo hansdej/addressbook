@@ -34,11 +34,8 @@ def parse_addressbook_json(addressbk=None):
         ab = addressbook.from_csv(csvfile, name = "My addressboek")
     else:
         ab = addressbk
-    output = "["
-    for record in ab.to_list():
-        output += "%s\n"%json.dumps(record,indent=4)
-    output += "]"
-    output = json.dumps( ab.to_list(),indent=4)
+
+    output = ab.to_json()
 
     return output
 # Wa

@@ -5,6 +5,10 @@ import pytest
 from os.path import isfile, getsize
 
 def isSQLite3(filename):
+    """
+    Test whether a file is a sqlite file.
+    """
+
 
     if not isfile(filename):
         return False

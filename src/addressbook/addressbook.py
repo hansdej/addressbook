@@ -3,8 +3,10 @@
 import sys
 import os
 import logging
+import json
 import logging.config
 import configparser
+import bottle
 
 logging_configfile = "%s/logging-addressbook.ini"%os.path.dirname(__file__)
 logging.config.fileConfig(logging_configfile,disable_existing_loggers=True)
@@ -291,6 +293,22 @@ class Addressbook(object):
 
     def to_list(self):
         return [ contact.to_dict() for contact in self ]
+
+    def to_json(self):
+        """
+
+        >>> import addressbook
+        >>> ab = addressbook.Addressbook()
+        >>> ab += addressbook.Contact("John", "Doe")
+        >>> print(ab.to_json())
+        [
+            {
+                "sname": "Doe",
+                "fname": "John"
+            }
+        ]
+        """
+        return json.dumps(self.to_list(), indent=4)
 
     def find_contact_by_name(self,search_fname, search_sname):
         """
